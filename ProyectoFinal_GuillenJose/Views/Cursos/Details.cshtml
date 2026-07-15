@@ -1,0 +1,6 @@
+﻿@model Curso
+@{ ViewData["Title"] = "Detalle del curso"; }
+
+<h1>@Model.Nombre</h1><hr />
+<dl class="row"><dt class="col-sm-3">Código</dt><dd class="col-sm-9">@Model.Codigo</dd><dt class="col-sm-3">Créditos</dt><dd class="col-sm-9">@Model.Creditos</dd><dt class="col-sm-3">Carrera</dt><dd class="col-sm-9">@(Model.Carrera?.Nombre ?? "-")</dd><dt class="col-sm-3">Docente</dt><dd class="col-sm-9">@(Model.Docente?.Nombre ?? "Sin asignar")</dd><dt class="col-sm-3">Cupos</dt><dd class="col-sm-9">@Model.Cupos</dd></dl>
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a> <a asp-action="Index" class="btn btn-secondary">Volver</a>

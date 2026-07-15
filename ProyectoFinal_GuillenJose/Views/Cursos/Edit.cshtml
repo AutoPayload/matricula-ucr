@@ -1,0 +1,16 @@
+﻿@model Curso
+@{ ViewData["Title"] = "Editar curso"; }
+
+<h1>Editar curso</h1><hr />
+<div class="row"><div class="col-md-6">
+<form asp-action="Edit"><div asp-validation-summary="All" class="text-danger"></div>
+<input type="hidden" asp-for="Id" />
+<div class="mb-3"><label asp-for="Nombre" class="form-label"></label><input asp-for="Nombre" class="form-control" /><span asp-validation-for="Nombre" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Codigo" class="form-label"></label><input asp-for="Codigo" class="form-control" /><span asp-validation-for="Codigo" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Creditos" class="form-label"></label><input asp-for="Creditos" type="number" class="form-control" /><span asp-validation-for="Creditos" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="CarreraId" class="form-label"></label><select asp-for="CarreraId" class="form-select" asp-items="ViewBag.CarreraId"><option value="">-- Seleccione --</option></select><span asp-validation-for="CarreraId" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="DocenteId" class="form-label"></label><select asp-for="DocenteId" class="form-select" asp-items="ViewBag.DocenteId"><option value="">-- Sin docente --</option></select><span asp-validation-for="DocenteId" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Cupos" class="form-label"></label><input asp-for="Cupos" type="number" class="form-control" /><span asp-validation-for="Cupos" class="text-danger"></span></div>
+<button type="submit" class="btn btn-primary">Guardar</button> <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form></div></div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
