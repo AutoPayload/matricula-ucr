@@ -1,0 +1,21 @@
+@model ProyectoFinal_GuillenJose.Componentes.AvisoPeriodoViewComponent.EstadoVentana
+
+<div class="aviso aviso--@Model.Tono">
+    <svg class="icono" aria-hidden="true">
+        <use href="@(Model.Abierta ? "#icono-calendario" : "#icono-alerta")"></use>
+    </svg>
+    <div>
+        <strong>@Model.Titulo</strong>
+        <p class="sin-margen">
+            @Model.Mensaje
+            @if (Model.Periodo is not null && Model.Abierta)
+            {
+                <text>
+                    Lecciones del @Model.Periodo.FechaInicio.ToString("dd/MM/yyyy")
+                    al @Model.Periodo.FechaFin.ToString("dd/MM/yyyy").
+                    Tope de @Model.Periodo.MaximoCreditos créditos.
+                </text>
+            }
+        </p>
+    </div>
+</div>

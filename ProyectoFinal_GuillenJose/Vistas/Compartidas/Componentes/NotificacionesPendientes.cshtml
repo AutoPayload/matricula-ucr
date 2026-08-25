@@ -1,0 +1,11 @@
+@model ProyectoFinal_GuillenJose.Componentes.NotificacionesPendientesViewComponent.ResumenAvisos
+
+<a class="boton boton--sutil boton--pequeno campana"
+   asp-controller="Cuenta" asp-action="Avisos"
+   title="@(Model.Pendientes == 0 ? "No tiene avisos sin leer" : $"{Model.Pendientes} aviso(s) sin leer")">
+    <svg class="icono" aria-hidden="true"><use href="#icono-campana"></use></svg>
+    @if (Model.Pendientes > 0)
+    {
+        <span class="campana__conteo">@(Model.Pendientes > 9 ? "9+" : Model.Pendientes.ToString())</span>
+    }
+</a>

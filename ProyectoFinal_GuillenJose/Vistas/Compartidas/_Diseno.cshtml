@@ -1,0 +1,125 @@
+@{
+    var esAdministracion = User.IsInRole(RolesSistema.Administrador);
+    var esDocencia = User.IsInRole(RolesSistema.Docente);
+    var esEstudiantado = User.IsInRole(RolesSistema.Estudiante);
+    var nombreCompleto = User.FindFirstValue(FabricaAfirmacionesUsuario.AfirmacionNombreCompleto) ?? User.Identity?.Name;
+    var iniciales = User.FindFirstValue(FabricaAfirmacionesUsuario.AfirmacionIniciales) ?? "??";
+    var fotografiaId = User.FindFirstValue(FabricaAfirmacionesUsuario.AfirmacionFotografia);
+    var controladorActual = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+
+    string Marcar(string controlador) =>
+        controladorActual.Equals(controlador, StringComparison.OrdinalIgnoreCase) ? "activo" : string.Empty;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Titulo"] · MatrículaUCR</title>
+    <meta name="description" content="Sistema de matrícula universitaria para la gestión de carreras, cursos, docentes y matrícula estudiantil." />
+    <link rel="stylesheet" href="~/css/sistema.css" asp-append-version="true" />
+    <link rel="icon" href="~/favicon.ico" />
+</head>
+<body>
+    <header class="barra-superior">
+        <div class="contenedor barra-superior__interior">
+            <a class="marca" asp-controller="Inicio" asp-action="Index">
+                Matrícula<span>UCR</span>
+            </a>
+
+            <nav class="navegacion" aria-label="Navegación principal">
+                @if (esEstudiantado)
+                {
+                    <a class="@Marcar("Cursos")" asp-controller="Cursos" asp-action="Disponibles">Cursos disponibles</a>
+                    <a class="@Marcar("Matricula")" asp-controller="Matricula" asp-action="MisCursos">Mis cursos</a>
+                    <a class="@Marcar("Expediente")" asp-controller="Expediente" asp-action="Index">Expediente</a>
+                }
+                @if (esDocencia)
+                {
+                    <a class="@Marcar("Docencia")" asp-controller="Docencia" asp-action="Index">Mis grupos</a>
+                }
+                @if (esAdministracion)
+                {
+                    <a class="@Marcar("Panel")" asp-controller="Panel" asp-action="Index">Panel</a>
+                    <a class="@Marcar("Carreras")" asp-controller="Carreras" asp-action="Index">Carreras</a>
+                    <a class="@Marcar("CursosAdmin")" asp-controller="CursosAdmin" asp-action="Index">Cursos</a>
+                    <a class="@Marcar("Docentes")" asp-controller="Docentes" asp-action="Index">Docentes</a>
+                    <a class="@Marcar("Periodos")" asp-controller="Periodos" asp-action="Index">Periodos</a>
+                    <a class="@Marcar("Grupos")" asp-controller="Grupos" asp-action="Index">Grupos</a>
+                }
+            </nav>
+
+            <div class="sesion">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @await Component.InvokeAsync("NotificacionesPendientes")
+
+                    <a asp-controller="Cuenta" asp-action="Perfil" title="@nombreCompleto">
+                        @if (!string.IsNullOrEmpty(fotografiaId))
+                        {
+                            <img class="avatar" src="@Url.Action("Ver", "Documentos", new { id = fotografiaId })" alt="Fotografía de @nombreCompleto" />
+                        }
+                        else
+                        {
+                            <span class="avatar">@iniciales</span>
+                        }
+                    </a>
+
+                    <form asp-controller="Cuenta" asp-action="Salir" method="post" class="formulario-en-linea">
+                        <button type="submit" class="boton boton--sutil boton--pequeno">
+                            <svg class="icono" aria-hidden="true"><use href="#icono-salir"></use></svg>
+                            Salir
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a class="boton boton--sutil boton--pequeno" asp-controller="Cuenta" asp-action="Registro">Crear cuenta</a>
+                    <a class="boton boton--principal boton--pequeno" asp-controller="Cuenta" asp-action="Ingreso">Iniciar sesión</a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="contenedor">
+            @if (TempData["Exito"] is string mensajeExito)
+            {
+                <div class="aviso aviso--exito" role="status">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-verificado"></use></svg>
+                    <p>@mensajeExito</p>
+                </div>
+            }
+            @if (TempData["Error"] is string mensajeError)
+            {
+                <div class="aviso aviso--error" role="alert">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+                    <p>@mensajeError</p>
+                </div>
+            }
+            @if (TempData["Aviso"] is string mensajeAviso)
+            {
+                <div class="aviso aviso--atencion" role="status">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+                    <p>@mensajeAviso</p>
+                </div>
+            }
+
+            <div id="avisos-dinamicos"></div>
+
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="pie">
+        <div class="contenedor pie__interior">
+            <span>MatrículaUCR · Sistema de Matrícula Universitaria</span>
+            <span>Proyecto final de Programación Avanzada en C# · Universidad Fidélitas · 2026</span>
+        </div>
+    </footer>
+
+    <partial name="_Iconos" />
+    <script src="~/js/sistema.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
