@@ -1,0 +1,46 @@
+@model Docente
+<div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+<div class="campo">
+    <label asp-for="Identificacion"></label>
+    <input asp-for="Identificacion" inputmode="numeric" placeholder="108450321" />
+    <span asp-validation-for="Identificacion" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Especialidad"></label>
+    <input asp-for="Especialidad" placeholder="Desarrollo de Software" />
+    <span asp-validation-for="Especialidad" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Nombre"></label>
+    <input asp-for="Nombre" placeholder="Ana" />
+    <span asp-validation-for="Nombre" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Apellidos"></label>
+    <input asp-for="Apellidos" placeholder="Rodríguez Solano" />
+    <span asp-validation-for="Apellidos" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="CorreoInstitucional"></label>
+    <input asp-for="CorreoInstitucional" type="email" placeholder="nombre@@matriculaucr.cr" />
+    <span class="ayuda">Este correo será el usuario de acceso al portal de docencia.</span>
+    <span asp-validation-for="CorreoInstitucional" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Telefono"></label>
+    <input asp-for="Telefono" placeholder="8888-8888" />
+    <span asp-validation-for="Telefono" class="campo-error"></span>
+</div>
+
+<div class="campo--ancho">
+    <label class="casilla">
+        <input asp-for="Activo" type="checkbox" />
+        <span>Está activo y puede recibir grupos asignados</span>
+    </label>
+</div>

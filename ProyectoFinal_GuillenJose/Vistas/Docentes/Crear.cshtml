@@ -1,0 +1,23 @@
+@model Docente
+
+<nav class="migas"><a asp-action="Index">Personal docente</a><span>·</span>Nuevo</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Nuevo docente</h1>
+        <p>Registre a la persona en el cuerpo académico. La cuenta de acceso al portal se crea aparte.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:820px">
+    <form asp-action="Crear" method="post" class="formulario formulario--2" data-evitar-doble-envio>
+        <partial name="_Formulario" model="Model" />
+        <div class="campo--ancho acciones">
+            <button type="submit" class="boton boton--principal">Registrar docente</button>
+            <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ScriptsValidacion" /> }

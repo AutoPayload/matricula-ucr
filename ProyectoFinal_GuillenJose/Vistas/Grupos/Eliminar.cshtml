@@ -1,0 +1,45 @@
+@model Grupo
+@{ var inscritos = (int)(ViewBag.Inscritos ?? 0); }
+
+<nav class="migas"><a asp-action="Index">Grupos</a><span>·</span>Eliminar</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Confirmación</span>
+        <h1>Eliminar grupo</h1>
+        <p>Revise las consecuencias antes de continuar.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:680px">
+    <dl class="ficha">
+        <dt>Curso</dt><dd>@Model.Curso?.Codigo — @Model.Curso?.Nombre</dd>
+        <dt>Grupo</dt><dd class="numero">@Model.NumeroGrupo.ToString("00")</dd>
+        <dt>Periodo</dt><dd>@Model.PeriodoAcademico?.Nombre</dd>
+        <dt>Docente</dt><dd>@(Model.Docente?.NombreCompleto ?? "Sin asignar")</dd>
+        <dt>Horario</dt><dd>@Model.Horario · Aula @Model.Aula</dd>
+        <dt>Matriculados</dt><dd class="numero">@inscritos</dd>
+    </dl>
+
+    @if (inscritos > 0)
+    {
+        <div class="aviso aviso--atencion margen-arriba">
+            <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+            <div>
+                <strong>El grupo tiene personas matriculadas</strong>
+                <p class="sin-margen">
+                    Se marcará como cancelado en lugar de eliminarse, para conservar el registro
+                    de esas @inscritos matrícula(s).
+                </p>
+            </div>
+        </div>
+    }
+
+    <form asp-action="Eliminar" method="post" class="acciones margen-arriba" data-evitar-doble-envio>
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="boton boton--peligro">
+            @(inscritos > 0 ? "Cancelar grupo" : "Eliminar grupo")
+        </button>
+        <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+    </form>
+</div>

@@ -1,0 +1,25 @@
+@model PeriodoAcademico
+
+<nav class="migas"><a asp-action="Index">Periodos</a><span>·</span>@Model.Codigo</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Editar periodo</h1>
+        <p>El estado se cambia desde el listado, con los botones de abrir y cerrar matrícula.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:820px">
+    <form asp-action="Editar" method="post" class="formulario formulario--2" data-evitar-doble-envio>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Estado" />
+        <partial name="_Formulario" model="Model" />
+        <div class="campo--ancho acciones">
+            <button type="submit" class="boton boton--principal">Guardar cambios</button>
+            <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ScriptsValidacion" /> }

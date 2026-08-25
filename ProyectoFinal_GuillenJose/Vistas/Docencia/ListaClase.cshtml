@@ -1,0 +1,209 @@
+@model ModeloListaClase
+@{
+    var curso = Model.Grupo.Curso!;
+}
+
+<nav class="migas">
+    <a asp-action="Index">Mis grupos</a><span>·</span>@curso.Codigo grupo @Model.Grupo.NumeroGrupo.ToString("00")
+</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@(Model.Grupo.PeriodoAcademico?.Nombre ?? "Periodo") · Aula @Model.Grupo.Aula</span>
+        <h1>@curso.Codigo — @curso.Nombre</h1>
+        <p>Grupo @Model.Grupo.NumeroGrupo.ToString("00") · @Model.Grupo.Horario · @curso.Creditos créditos</p>
+    </div>
+    <div class="acciones">
+        <a class="boton boton--sutil" asp-action="Index">
+            <svg class="icono" aria-hidden="true"><use href="#icono-atras"></use></svg>
+            Volver
+        </a>
+    </div>
+</div>
+
+@if (Model.ActaCerrada)
+{
+    <div class="aviso aviso--exito">
+        <svg class="icono" aria-hidden="true"><use href="#icono-verificado"></use></svg>
+        <div>
+            <strong>Acta cerrada</strong>
+            <p class="sin-margen">
+                Las notas de este grupo quedaron en firme
+                @if (Model.Grupo.FechaCierreActa is not null)
+                {
+                    <text>el @Model.Grupo.FechaCierreActa.Value.ToString("dd/MM/yyyy")</text>
+                }
+                y ya no pueden modificarse desde el portal.
+            </p>
+        </div>
+    </div>
+}
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        @if (Model.Estudiantes.Count == 0)
+        {
+            <div class="vacio">
+                <h3>Nadie ha matriculado este grupo</h3>
+                <p>La lista se llena conforme el estudiantado confirme su matrícula del periodo.</p>
+            </div>
+        }
+        else
+        {
+            <form asp-action="RegistrarNotas" method="post" data-evitar-doble-envio>
+                <input type="hidden" name="GrupoId" value="@Model.Grupo.Id" />
+
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th class="angosta">N.º</th>
+                                <th>Estudiante</th>
+                                <th>Identificación</th>
+                                <th class="angosta">Nota final</th>
+                                <th class="angosta">Condición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var indice = 0; indice < Model.Estudiantes.Count; indice++)
+                            {
+                                var fila = Model.Estudiantes[indice];
+                                <tr>
+                                    <td class="numero tenue">@(indice + 1)</td>
+                                    <td>
+                                        <span class="fila" style="gap:10px; flex-wrap:nowrap">
+                                            @if (fila.FotografiaDocumentoId is not null)
+                                            {
+                                                <img class="avatar"
+                                                     src="@Url.Action("Ver", "Documentos", new { id = fila.FotografiaDocumentoId })"
+                                                     alt="Fotografía de @fila.NombreCompleto" />
+                                            }
+                                            else
+                                            {
+                                                <span class="avatar">@fila.Iniciales</span>
+                                            }
+                                            <span>
+                                                <span class="celda-principal">@fila.NombreCompleto</span>
+                                                <span class="celda-secundaria">@fila.Correo</span>
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td class="numero">@fila.Identificacion</td>
+                                    <td class="angosta">
+                                        <input type="hidden" name="Estudiantes[@indice].DetalleId" value="@fila.DetalleId" />
+                                        <input type="number" name="Estudiantes[@indice].NotaFinal"
+                                               value="@fila.NotaFinal" min="0" max="100" step="1"
+                                               style="width:88px"
+                                               disabled="@(!Model.PuedeCalificar)"
+                                               aria-label="Nota final de @fila.NombreCompleto" />
+                                    </td>
+                                    <td class="angosta">
+                                        @if (fila.NotaFinal is not null)
+                                        {
+                                            <indicador-estado nota="@fila.NotaFinal" />
+                                        }
+                                        else
+                                        {
+                                            <span class="indicador indicador--neutro">Pendiente</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.PuedeCalificar)
+                {
+                    <div class="acciones margen-arriba">
+                        <button type="submit" class="boton boton--principal">Guardar notas</button>
+                        <span class="diminuto tenue" style="align-self:center">
+                            Deje la casilla vacía para dejar la nota pendiente.
+                        </span>
+                    </div>
+                }
+            </form>
+        }
+    </div>
+
+    <div class="columna">
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Resumen del grupo</h3></div>
+            <dl class="ficha">
+                <dt>Matriculados</dt>
+                <dd class="numero">@Model.Estudiantes.Count de @Model.Grupo.CupoMaximo</dd>
+                <dt>Notas registradas</dt>
+                <dd class="numero">@Model.NotasRegistradas</dd>
+                <dt>Aprobados</dt>
+                <dd class="numero">@Model.Aprobados</dd>
+                <dt>Reprobados</dt>
+                <dd class="numero">@Model.Reprobados</dd>
+                <dt>Promedio</dt>
+                <dd class="numero">@(Model.Promedio > 0 ? Model.Promedio.ToString("N1") : "—")</dd>
+            </dl>
+        </div>
+
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Acta de notas</h3></div>
+
+            @if (Model.ActaCerrada)
+            {
+                <p class="diminuto tenue">
+                    El acta está cerrada. Para corregir una nota debe solicitarlo a la oficina de registro.
+                </p>
+            }
+            else
+            {
+                <p class="diminuto tenue">
+                    Al cerrar el acta se genera el documento oficial en PDF con la lista, las notas
+                    y la condición de cada persona. Después de cerrarla las notas quedan en firme.
+                </p>
+
+                <form asp-action="CerrarActa" method="post" data-evitar-doble-envio>
+                    <input type="hidden" name="id" value="@Model.Grupo.Id" />
+                    <button type="submit" class="boton boton--principal" style="width:100%"
+                            disabled="@(Model.Estudiantes.Count == 0 || Model.NotasRegistradas < Model.Estudiantes.Count)">
+                        Cerrar acta y generar PDF
+                    </button>
+                </form>
+
+                @if (Model.Estudiantes.Count > 0 && Model.NotasRegistradas < Model.Estudiantes.Count)
+                {
+                    <p class="diminuto tenue margen-arriba sin-margen">
+                        Faltan @(Model.Estudiantes.Count - Model.NotasRegistradas) nota(s) por registrar.
+                    </p>
+                }
+            }
+        </div>
+
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Programa del curso</h3></div>
+
+            @if (Model.Grupo.ProgramaDocumento is not null)
+            {
+                <p class="diminuto tenue">
+                    Publicado el @Model.Grupo.ProgramaDocumento.FechaCarga.ToString("dd/MM/yyyy") ·
+                    @Model.Grupo.ProgramaDocumento.TamanoLegible
+                </p>
+                <a class="boton boton--sutil boton--pequeno"
+                   asp-controller="Documentos" asp-action="Descargar"
+                   asp-route-id="@Model.Grupo.ProgramaDocumentoId">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-descargar"></use></svg>
+                    @Model.Grupo.ProgramaDocumento.NombreOriginal
+                </a>
+                <hr class="separador" style="margin:16px 0" />
+            }
+
+            <form asp-action="CargarPrograma" method="post" enctype="multipart/form-data"
+                  class="formulario" data-evitar-doble-envio>
+                <input type="hidden" name="id" value="@Model.Grupo.Id" />
+                <div class="campo">
+                    <label for="archivo">Subir archivo</label>
+                    <input type="file" id="archivo" name="archivo" accept=".pdf,.docx,.odt" required />
+                    <span class="ayuda">PDF, DOCX u ODT, hasta 5 MB. Se avisa al estudiantado del grupo.</span>
+                </div>
+                <button type="submit" class="boton">Publicar programa</button>
+            </form>
+        </div>
+    </div>
+</div>

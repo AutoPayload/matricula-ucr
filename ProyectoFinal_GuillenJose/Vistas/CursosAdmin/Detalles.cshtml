@@ -1,0 +1,170 @@
+@model ModeloFichaCurso
+
+<nav class="migas">
+    <a asp-action="Index">Cursos</a><span>·</span>@Model.Curso.Codigo
+</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.Curso.Codigo · @Model.Curso.Modalidad</span>
+        <h1>@Model.Curso.Nombre</h1>
+        <p>@Model.Curso.Descripcion</p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-action="Editar" asp-route-id="@Model.Curso.Id">
+            <svg class="icono" aria-hidden="true"><use href="#icono-editar"></use></svg>
+            Editar
+        </a>
+    </div>
+</div>
+
+<div class="rejilla rejilla--4" style="margin-bottom:22px">
+    <div class="metrica">
+        <span class="rotulo">Créditos</span>
+        <div class="metrica__valor">@Model.Curso.Creditos</div>
+    </div>
+    <div class="metrica">
+        <span class="rotulo">Horas por semana</span>
+        <div class="metrica__valor">@Model.Curso.HorasSemanales</div>
+    </div>
+    <div class="metrica">
+        <span class="rotulo">Carreras</span>
+        <div class="metrica__valor">@Model.Carreras.Count</div>
+    </div>
+    <div class="metrica">
+        <span class="rotulo">Grupos</span>
+        <div class="metrica__valor">@Model.Grupos.Count</div>
+        <div class="metrica__pie">históricos y vigentes</div>
+    </div>
+</div>
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Carreras que lo incluyen</h3></div>
+            @if (Model.Carreras.Count == 0)
+            {
+                <p class="diminuto tenue sin-margen">
+                    Este curso todavía no forma parte de ningún plan de estudios. Asócielo desde
+                    la ficha de la carrera correspondiente.
+                </p>
+            }
+            else
+            {
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead><tr><th>Carrera</th><th class="centro">Ciclo</th><th class="angosta">Tipo</th></tr></thead>
+                        <tbody>
+                            @foreach (var asociacion in Model.Carreras.OrderBy(c => c.Carrera!.Nombre))
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-controller="Carreras" asp-action="Detalles" asp-route-id="@asociacion.CarreraId">
+                                            @asociacion.Carrera?.Nombre
+                                        </a>
+                                    </td>
+                                    <td class="centro numero">@asociacion.Ciclo</td>
+                                    <td class="angosta">
+                                        <span class="indicador @(asociacion.EsObligatorio ? "indicador--acento" : "indicador--neutro")">
+                                            @(asociacion.EsObligatorio ? "Obligatorio" : "Electivo")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @if (Model.Grupos.Count > 0)
+        {
+            <div class="tarjeta">
+                <div class="tarjeta__titulo"><h3 class="sin-margen">Grupos abiertos</h3></div>
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr><th>Periodo</th><th class="centro">Grupo</th><th>Docente</th><th>Horario</th><th class="angosta">Estado</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grupo in Model.Grupos)
+                            {
+                                <tr>
+                                    <td>@grupo.PeriodoAcademico?.Nombre</td>
+                                    <td class="centro numero">@grupo.NumeroGrupo.ToString("00")</td>
+                                    <td>@(grupo.Docente?.NombreCompleto ?? "Sin asignar")</td>
+                                    <td>@grupo.Horario</td>
+                                    <td class="angosta"><indicador-estado grupo="@grupo.Estado" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        @if (Model.EsRequisitoDe.Count > 0)
+        {
+            <div class="tarjeta">
+                <div class="tarjeta__titulo"><h3 class="sin-margen">Este curso es requisito de</h3></div>
+                <ul class="lista-avisos">
+                    @foreach (var dependiente in Model.EsRequisitoDe)
+                    {
+                        <li>
+                            <a asp-action="Detalles" asp-route-id="@dependiente.CursoId">
+                                @dependiente.Curso?.Codigo — @dependiente.Curso?.Nombre
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+
+    <aside class="tarjeta lateral" style="padding:22px">
+        <div class="tarjeta__titulo"><h3 class="sin-margen">Requisitos</h3></div>
+
+        @if (Model.Requisitos.Count == 0)
+        {
+            <p class="diminuto tenue">Este curso no exige requisitos previos.</p>
+        }
+        else
+        {
+            <ul class="lista-avisos">
+                @foreach (var requisito in Model.Requisitos)
+                {
+                    <li>
+                        <strong>@requisito.CursoRequisito?.Codigo</strong>
+                        <p>@requisito.CursoRequisito?.Nombre</p>
+                        <span class="diminuto tenue numero">Nota mínima @requisito.NotaMinima</span>
+                        <form asp-action="QuitarRequisito" method="post" class="formulario-en-linea">
+                            <input type="hidden" name="id" value="@Model.Curso.Id" />
+                            <input type="hidden" name="requisitoId" value="@requisito.Id" />
+                            <button type="submit" class="boton boton--sutil boton--pequeno">Quitar</button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        }
+
+        <hr class="separador" style="margin:16px 0" />
+
+        <form asp-action="AgregarRequisito" method="post" class="formulario" data-evitar-doble-envio>
+            <input type="hidden" name="id" value="@Model.Curso.Id" />
+
+            <div class="campo">
+                <label for="cursoRequisitoId">Curso requisito</label>
+                <select id="cursoRequisitoId" name="cursoRequisitoId" asp-items="Model.CursosCandidatos" required>
+                    <option value="">Seleccione un curso</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="notaMinima">Nota mínima</label>
+                <input type="number" id="notaMinima" name="notaMinima" value="70" min="0" max="100" required />
+            </div>
+
+            <button type="submit" class="boton">Declarar requisito</button>
+        </form>
+    </aside>
+</div>

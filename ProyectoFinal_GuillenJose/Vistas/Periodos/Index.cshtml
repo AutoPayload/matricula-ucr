@@ -1,0 +1,140 @@
+@model ResultadoPaginado<FilaPeriodo>
+@{
+    var estado = ViewBag.Estado as EstadoPeriodo?;
+    var hoy = DateTime.Today;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Periodos académicos</h1>
+        <p>
+            Calendario lectivo. La ventana de matrícula de un periodo es la que habilita al
+            estudiantado para confirmar su inscripción.
+        </p>
+    </div>
+    <div class="acciones">
+        <a class="boton boton--principal" asp-action="Crear">
+            <svg class="icono" aria-hidden="true"><use href="#icono-mas"></use></svg>
+            Nuevo periodo
+        </a>
+    </div>
+</div>
+
+<form class="filtros" method="get" asp-action="Index">
+    <div class="campo">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+            <option value="">Todos</option>
+            @foreach (var valor in Enum.GetValues<EstadoPeriodo>())
+            {
+                <option value="@valor" selected="@(estado == valor)">@valor.Describir()</option>
+            }
+        </select>
+    </div>
+    <div class="acciones">
+        <button type="submit" class="boton boton--pequeno">Filtrar</button>
+        <a class="boton boton--sutil boton--pequeno" asp-action="Index">Limpiar</a>
+    </div>
+</form>
+
+@if (Model.TotalElementos == 0)
+{
+    <div class="vacio">
+        <h3>No hay periodos registrados</h3>
+        <p>Cree el primer periodo para poder publicar grupos y abrir la matrícula.</p>
+    </div>
+}
+else
+{
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Periodo</th>
+                    <th>Lecciones</th>
+                    <th>Ventana de matrícula</th>
+                    <th class="centro">Tope</th>
+                    <th class="centro">Grupos</th>
+                    <th class="centro">Matrículas</th>
+                    <th class="angosta">Estado</th>
+                    <th class="angosta"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fila in Model.Elementos)
+                {
+                    var ventanaVigente = hoy >= fila.InicioMatricula.Date && hoy <= fila.FinMatricula.Date;
+                    <tr>
+                        <td>
+                            <span class="celda-principal">@fila.Nombre</span>
+                            <span class="celda-secundaria mono">@fila.Codigo</span>
+                        </td>
+                        <td class="diminuto">
+                            @fila.FechaInicio.ToString("dd/MM/yyyy")
+                            <span class="celda-secundaria">al @fila.FechaFin.ToString("dd/MM/yyyy")</span>
+                        </td>
+                        <td class="diminuto">
+                            @fila.InicioMatricula.ToString("dd/MM/yyyy")
+                            <span class="celda-secundaria">
+                                al @fila.FinMatricula.ToString("dd/MM/yyyy")
+                                @if (ventanaVigente)
+                                {
+                                    <text> · vigente hoy</text>
+                                }
+                            </span>
+                        </td>
+                        <td class="centro numero">@fila.MaximoCreditos</td>
+                        <td class="centro numero">@fila.CantidadGrupos</td>
+                        <td class="centro numero">@fila.MatriculasConfirmadas</td>
+                        <td class="angosta"><indicador-estado periodo="@fila.Estado" /></td>
+                        <td class="angosta">
+                            <span class="fila" style="gap:4px; flex-wrap:nowrap">
+                                @if (fila.Estado != EstadoPeriodo.MatriculaAbierta)
+                                {
+                                    <form asp-action="CambiarEstado" method="post" class="formulario-en-linea">
+                                        <input type="hidden" name="id" value="@fila.Id" />
+                                        <input type="hidden" name="estado" value="@EstadoPeriodo.MatriculaAbierta" />
+                                        <button type="submit" class="boton boton--pequeno">Abrir matrícula</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="CambiarEstado" method="post" class="formulario-en-linea">
+                                        <input type="hidden" name="id" value="@fila.Id" />
+                                        <input type="hidden" name="estado" value="@EstadoPeriodo.EnCurso" />
+                                        <button type="submit" class="boton boton--pequeno">Cerrar matrícula</button>
+                                    </form>
+                                }
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Editar" asp-route-id="@fila.Id" title="Editar">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-editar"></use></svg>
+                                </a>
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Eliminar" asp-route-id="@fila.Id" title="Eliminar">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-eliminar"></use></svg>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <paginador pagina-actual="@Model.PaginaActual" total-paginas="@Model.TotalPaginas"
+               total-elementos="@Model.TotalElementos" primera-fila="@Model.PrimeraFila"
+               ultima-fila="@Model.UltimaFila" accion="Index" controlador="Periodos"
+               nombre-singular="periodo" nombre-plural="periodos"
+               filtro-estado="@estado?.ToString()" />
+}
+
+<div class="aviso aviso--acento margen-arriba">
+    <svg class="icono" aria-hidden="true"><use href="#icono-calendario"></use></svg>
+    <div>
+        <strong>Solo un periodo puede tener la matrícula abierta</strong>
+        <p class="sin-margen">
+            Al abrir uno, el que estuviera abierto pasa a lecciones en curso y se envía un aviso
+            a todo el estudiantado activo. Si la ventana de fechas ya venció, el sistema la corre
+            a partir de hoy para que la apertura tenga efecto.
+        </p>
+    </div>
+</div>

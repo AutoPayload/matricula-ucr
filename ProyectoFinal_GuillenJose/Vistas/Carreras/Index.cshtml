@@ -1,0 +1,103 @@
+@model ResultadoPaginado<FilaCarrera>
+@{
+    var texto = ViewBag.Texto as string;
+    var activa = ViewBag.Activa as bool?;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Carreras</h1>
+        <p>Oferta académica de la universidad y plan de estudios asociado a cada carrera.</p>
+    </div>
+    <div class="acciones">
+        <a class="boton boton--principal" asp-action="Crear">
+            <svg class="icono" aria-hidden="true"><use href="#icono-mas"></use></svg>
+            Nueva carrera
+        </a>
+    </div>
+</div>
+
+<form class="filtros" method="get" asp-action="Index">
+    <div class="campo campo--busqueda">
+        <label for="texto">Buscar</label>
+        <input type="search" id="texto" name="texto" value="@texto"
+               placeholder="Código, nombre o título" autocomplete="off" />
+    </div>
+    <div class="campo">
+        <label for="activa">Estado</label>
+        <select id="activa" name="activa">
+            <option value="">Todas</option>
+            <option value="true" selected="@(activa == true)">Activas</option>
+            <option value="false" selected="@(activa == false)">Inactivas</option>
+        </select>
+    </div>
+    <div class="acciones">
+        <button type="submit" class="boton boton--pequeno">Filtrar</button>
+        <a class="boton boton--sutil boton--pequeno" asp-action="Index">Limpiar</a>
+    </div>
+</form>
+
+@if (Model.TotalElementos == 0)
+{
+    <div class="vacio">
+        <h3>No hay carreras que coincidan</h3>
+        <p>Ajuste los criterios de búsqueda o registre una carrera nueva.</p>
+    </div>
+}
+else
+{
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Carrera</th>
+                    <th>Título que otorga</th>
+                    <th class="centro">Plan</th>
+                    <th class="centro">Cursos</th>
+                    <th class="centro">Estudiantes</th>
+                    <th class="angosta">Estado</th>
+                    <th class="angosta"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fila in Model.Elementos)
+                {
+                    <tr>
+                        <td>
+                            <a class="celda-principal" asp-action="Detalles" asp-route-id="@fila.Id">@fila.Nombre</a>
+                            <span class="celda-secundaria mono">@fila.Codigo</span>
+                        </td>
+                        <td>@fila.TituloOtorgado</td>
+                        <td class="centro numero">@fila.CreditosPlan</td>
+                        <td class="centro numero">@fila.CantidadCursos</td>
+                        <td class="centro numero">@fila.CantidadEstudiantes</td>
+                        <td class="angosta"><indicador-estado activo="@fila.Activa" /></td>
+                        <td class="angosta">
+                            <span class="fila" style="gap:4px; flex-wrap:nowrap">
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Detalles" asp-route-id="@fila.Id"
+                                   title="Ver plan de estudios">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-ver"></use></svg>
+                                </a>
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Editar" asp-route-id="@fila.Id"
+                                   title="Editar">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-editar"></use></svg>
+                                </a>
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Eliminar" asp-route-id="@fila.Id"
+                                   title="Eliminar">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-eliminar"></use></svg>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <paginador pagina-actual="@Model.PaginaActual" total-paginas="@Model.TotalPaginas"
+               total-elementos="@Model.TotalElementos" primera-fila="@Model.PrimeraFila"
+               ultima-fila="@Model.UltimaFila" accion="Index" controlador="Carreras"
+               nombre-singular="carrera" nombre-plural="carreras"
+               filtro-texto="@texto" filtro-activa="@activa?.ToString()" />
+}

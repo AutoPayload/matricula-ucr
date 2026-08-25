@@ -1,0 +1,127 @@
+@model ResultadoPaginado<FilaCurso>
+@{
+    var texto = ViewBag.Texto as string;
+    var creditos = ViewBag.Creditos as int?;
+    var modalidad = ViewBag.Modalidad as ModalidadCurso?;
+    var activo = ViewBag.Activo as bool?;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Cursos</h1>
+        <p>Catálogo institucional. Un curso puede pertenecer a varias carreras y exigir requisitos.</p>
+    </div>
+    <div class="acciones">
+        <a class="boton boton--principal" asp-action="Crear">
+            <svg class="icono" aria-hidden="true"><use href="#icono-mas"></use></svg>
+            Nuevo curso
+        </a>
+    </div>
+</div>
+
+<form class="filtros" method="get" asp-action="Index">
+    <div class="campo campo--busqueda">
+        <label for="texto">Buscar</label>
+        <input type="search" id="texto" name="texto" value="@texto"
+               placeholder="Código o nombre del curso" autocomplete="off" />
+    </div>
+    <div class="campo">
+        <label for="creditos">Créditos</label>
+        <select id="creditos" name="creditos">
+            <option value="">Todos</option>
+            @for (var valor = 1; valor <= 6; valor++)
+            {
+                <option value="@valor" selected="@(creditos == valor)">@valor créditos</option>
+            }
+        </select>
+    </div>
+    <div class="campo">
+        <label for="modalidad">Modalidad</label>
+        <select id="modalidad" name="modalidad">
+            <option value="">Todas</option>
+            @foreach (var valor in Enum.GetValues<ModalidadCurso>())
+            {
+                <option value="@valor" selected="@(modalidad == valor)">@valor</option>
+            }
+        </select>
+    </div>
+    <div class="campo">
+        <label for="activo">Estado</label>
+        <select id="activo" name="activo">
+            <option value="">Todos</option>
+            <option value="true" selected="@(activo == true)">Activos</option>
+            <option value="false" selected="@(activo == false)">Inactivos</option>
+        </select>
+    </div>
+    <div class="acciones">
+        <button type="submit" class="boton boton--pequeno">Filtrar</button>
+        <a class="boton boton--sutil boton--pequeno" asp-action="Index">Limpiar</a>
+    </div>
+</form>
+
+@if (Model.TotalElementos == 0)
+{
+    <div class="vacio">
+        <h3>No hay cursos que coincidan</h3>
+        <p>Ajuste los criterios de búsqueda o registre un curso nuevo en el catálogo.</p>
+    </div>
+}
+else
+{
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Curso</th>
+                    <th class="centro">Créd.</th>
+                    <th class="centro">Horas</th>
+                    <th>Modalidad</th>
+                    <th class="centro">Carreras</th>
+                    <th class="centro">Grupos</th>
+                    <th class="centro">Requisitos</th>
+                    <th class="angosta">Estado</th>
+                    <th class="angosta"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fila in Model.Elementos)
+                {
+                    <tr>
+                        <td>
+                            <a class="celda-principal" asp-action="Detalles" asp-route-id="@fila.Id">@fila.Nombre</a>
+                            <span class="celda-secundaria mono">@fila.Codigo</span>
+                        </td>
+                        <td class="centro numero">@fila.Creditos</td>
+                        <td class="centro numero">@fila.HorasSemanales</td>
+                        <td>@fila.Modalidad</td>
+                        <td class="centro numero">@fila.CantidadCarreras</td>
+                        <td class="centro numero">@fila.CantidadGrupos</td>
+                        <td class="centro numero">@fila.CantidadRequisitos</td>
+                        <td class="angosta"><indicador-estado activo="@fila.Activo" /></td>
+                        <td class="angosta">
+                            <span class="fila" style="gap:4px; flex-wrap:nowrap">
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Detalles" asp-route-id="@fila.Id" title="Ver ficha">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-ver"></use></svg>
+                                </a>
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Editar" asp-route-id="@fila.Id" title="Editar">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-editar"></use></svg>
+                                </a>
+                                <a class="boton boton--sutil boton--pequeno" asp-action="Eliminar" asp-route-id="@fila.Id" title="Eliminar">
+                                    <svg class="icono" aria-hidden="true"><use href="#icono-eliminar"></use></svg>
+                                </a>
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <paginador pagina-actual="@Model.PaginaActual" total-paginas="@Model.TotalPaginas"
+               total-elementos="@Model.TotalElementos" primera-fila="@Model.PrimeraFila"
+               ultima-fila="@Model.UltimaFila" accion="Index" controlador="CursosAdmin"
+               nombre-singular="curso" nombre-plural="cursos"
+               filtro-texto="@texto" filtro-creditos="@creditos?.ToString()"
+               filtro-modalidad="@modalidad?.ToString()" filtro-activo="@activo?.ToString()" />
+}

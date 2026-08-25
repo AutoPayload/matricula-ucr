@@ -1,0 +1,119 @@
+@model ResultadoPaginado<FilaMatricula>
+@{
+    var periodos = ViewBag.Periodos as List<PeriodoAcademico> ?? [];
+    var periodoId = ViewBag.PeriodoId as int?;
+    var estadoFiltro = ViewBag.EstadoFiltro as EstadoMatricula?;
+    var texto = ViewBag.Texto as string;
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Matrículas</h1>
+        <p>Transacciones de matrícula registradas en el sistema, con su comprobante y su estado.</p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-action="Index">Volver al panel</a>
+    </div>
+</div>
+
+<form class="filtros" method="get" asp-action="Matriculas">
+    <div class="campo campo--busqueda">
+        <label for="texto">Buscar</label>
+        <input type="search" id="texto" name="texto" value="@texto"
+               placeholder="Nombre, identificación o comprobante" autocomplete="off" />
+    </div>
+    <div class="campo">
+        <label for="periodoId">Periodo</label>
+        <select id="periodoId" name="periodoId">
+            <option value="">Todos</option>
+            @foreach (var periodo in periodos)
+            {
+                <option value="@periodo.Id" selected="@(periodoId == periodo.Id)">@periodo.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="campo">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado">
+            <option value="">Todos</option>
+            @foreach (var valor in Enum.GetValues<EstadoMatricula>())
+            {
+                <option value="@valor" selected="@(estadoFiltro == valor)">@valor.Describir()</option>
+            }
+        </select>
+    </div>
+    <div class="acciones">
+        <button type="submit" class="boton boton--pequeno">Filtrar</button>
+        <a class="boton boton--sutil boton--pequeno" asp-action="Matriculas">Limpiar</a>
+    </div>
+</form>
+
+@if (Model.TotalElementos == 0)
+{
+    <div class="vacio">
+        <h3>No hay matrículas que coincidan</h3>
+        <p>Ajuste los criterios de búsqueda para encontrar la transacción que busca.</p>
+    </div>
+}
+else
+{
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Estudiante</th>
+                    <th>Comprobante</th>
+                    <th>Periodo</th>
+                    <th class="centro">Cursos</th>
+                    <th class="centro">Créditos</th>
+                    <th class="derecha">Monto</th>
+                    <th class="angosta">Estado</th>
+                    <th class="angosta"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fila in Model.Elementos)
+                {
+                    <tr>
+                        <td>
+                            <span class="celda-principal">@fila.Estudiante</span>
+                            <span class="celda-secundaria numero">@fila.Identificacion · @fila.Carrera</span>
+                        </td>
+                        <td class="mono diminuto">
+                            @(fila.NumeroComprobante ?? "—")
+                            @if (fila.FechaConfirmacion is not null)
+                            {
+                                <span class="celda-secundaria">@fila.FechaConfirmacion.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                            }
+                        </td>
+                        <td class="mono diminuto">@fila.Periodo</td>
+                        <td class="centro numero">@fila.CantidadCursos</td>
+                        <td class="centro numero">@fila.TotalCreditos</td>
+                        <td class="derecha numero">@fila.MontoTotal.ToString("C0")</td>
+                        <td class="angosta"><indicador-estado matricula="@fila.Estado" /></td>
+                        <td class="angosta">
+                            @if (fila.Estado == EstadoMatricula.Confirmada)
+                            {
+                                <form asp-action="AnularMatricula" method="post" class="fila"
+                                      style="gap:4px; flex-wrap:nowrap" data-evitar-doble-envio>
+                                    <input type="hidden" name="id" value="@fila.Id" />
+                                    <input type="text" name="motivo" placeholder="Motivo" required
+                                           style="width:150px; padding:5px 8px; font-size:13px" />
+                                    <button type="submit" class="boton boton--peligro boton--pequeno">Anular</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <paginador pagina-actual="@Model.PaginaActual" total-paginas="@Model.TotalPaginas"
+               total-elementos="@Model.TotalElementos" primera-fila="@Model.PrimeraFila"
+               ultima-fila="@Model.UltimaFila" accion="Matriculas" controlador="Panel"
+               nombre-singular="matrícula" nombre-plural="matrículas"
+               filtro-texto="@texto" filtro-periodoId="@periodoId?.ToString()"
+               filtro-estado="@estadoFiltro?.ToString()" />
+}

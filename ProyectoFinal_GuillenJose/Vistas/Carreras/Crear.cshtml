@@ -1,0 +1,23 @@
+@model Carrera
+
+<nav class="migas"><a asp-action="Index">Carreras</a><span>·</span>Nueva</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Nueva carrera</h1>
+        <p>Registre la carrera y luego arme su plan de estudios asociando cursos por ciclo.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:820px">
+    <form asp-action="Crear" method="post" class="formulario formulario--2" data-evitar-doble-envio>
+        <partial name="_Formulario" model="Model" />
+        <div class="campo--ancho acciones">
+            <button type="submit" class="boton boton--principal">Registrar carrera</button>
+            <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ScriptsValidacion" /> }

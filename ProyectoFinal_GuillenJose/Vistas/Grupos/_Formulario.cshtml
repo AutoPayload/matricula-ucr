@@ -1,0 +1,63 @@
+@model Grupo
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var cursos = ViewData["Cursos"] as List<SelectListItem> ?? [];
+    var docentes = ViewData["Docentes"] as List<SelectListItem> ?? [];
+    var periodos = ViewData["Periodos"] as List<SelectListItem> ?? [];
+}
+<div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+<div class="campo">
+    <label asp-for="CursoId"></label>
+    <select asp-for="CursoId" asp-items="cursos">
+        <option value="">Seleccione un curso</option>
+    </select>
+    <span asp-validation-for="CursoId" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="PeriodoAcademicoId"></label>
+    <select asp-for="PeriodoAcademicoId" asp-items="periodos">
+        <option value="">Seleccione un periodo</option>
+    </select>
+    <span asp-validation-for="PeriodoAcademicoId" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="DocenteId"></label>
+    <select asp-for="DocenteId" asp-items="docentes">
+        <option value="">Sin asignar</option>
+    </select>
+    <span class="ayuda">El sistema avisa si la persona ya tiene otro grupo en ese mismo horario.</span>
+    <span asp-validation-for="DocenteId" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="NumeroGrupo"></label>
+    <input asp-for="NumeroGrupo" type="number" min="1" max="20" />
+    <span asp-validation-for="NumeroGrupo" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Horario"></label>
+    <input asp-for="Horario" placeholder="Lunes y miércoles 18:00 a 20:30" />
+    <span asp-validation-for="Horario" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Aula"></label>
+    <input asp-for="Aula" placeholder="LAB-201" />
+    <span asp-validation-for="Aula" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="CupoMaximo"></label>
+    <input asp-for="CupoMaximo" type="number" min="5" max="60" />
+    <span asp-validation-for="CupoMaximo" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Estado"></label>
+    <select asp-for="Estado" asp-items="Html.GetEnumSelectList<EstadoGrupo>()"></select>
+    <span asp-validation-for="Estado" class="campo-error"></span>
+</div>
