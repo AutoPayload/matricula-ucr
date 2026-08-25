@@ -372,7 +372,7 @@ public class ServicioMatricula(
         notificaciones.Emitir(
             estudianteId,
             "Matrícula confirmada",
-            $"Su matrícula del periodo {matricula.PeriodoAcademico.Nombre} quedó confirmada con " +
+            $"Su matrícula del periodo {matricula.PeriodoAcademico?.Nombre} quedó confirmada con " +
             $"{totalCreditos} créditos. El comprobante {matricula.NumeroComprobante} está disponible.",
             "/Matricula/MisCursos");
 
