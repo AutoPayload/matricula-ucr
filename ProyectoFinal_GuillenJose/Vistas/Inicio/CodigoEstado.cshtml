@@ -1,0 +1,10 @@
+@model ModeloCodigoEstado
+
+<div class="vacio margen-arriba">
+    <span class="rotulo">Código @Model.Codigo</span>
+    <h3>@Model.Titulo</h3>
+    <p>@Model.Explicacion</p>
+    <div class="acciones margen-arriba" style="justify-content:center">
+        <a class="boton boton--principal" asp-controller="Inicio" asp-action="Index">Ir al inicio</a>
+    </div>
+</div>

@@ -1,0 +1,188 @@
+@model ModeloDetalleGrupo
+@{
+    var curso = Model.Grupo.Curso!;
+}
+
+<nav class="migas">
+    <a asp-action="Disponibles">Cursos disponibles</a><span>·</span>@curso.Codigo
+</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.NombreCarrera · Grupo @Model.Grupo.NumeroGrupo.ToString("00")</span>
+        <h1>@curso.Nombre</h1>
+        <p>@curso.Descripcion</p>
+    </div>
+    <div class="acciones">
+        <a class="boton boton--sutil" asp-action="Disponibles">
+            <svg class="icono" aria-hidden="true"><use href="#icono-atras"></use></svg>
+            Volver al catálogo
+        </a>
+    </div>
+</div>
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        <div class="rejilla rejilla--4">
+            <div class="metrica">
+                <span class="rotulo">Código</span>
+                <div class="metrica__valor">@curso.Codigo</div>
+            </div>
+            <div class="metrica">
+                <span class="rotulo">Créditos</span>
+                <div class="metrica__valor">@curso.Creditos</div>
+                <div class="metrica__pie">@curso.HorasSemanales horas por semana</div>
+            </div>
+            <div class="metrica">
+                <span class="rotulo">Modalidad</span>
+                <div class="metrica__valor" style="font-size:20px">@curso.Modalidad</div>
+            </div>
+            <div class="metrica">
+                <span class="rotulo">Cupo</span>
+                <div class="metrica__valor">@Model.Disponibles</div>
+                <div class="metrica__pie">de @Model.Grupo.CupoMaximo espacios</div>
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Detalle del grupo</h3></div>
+            <dl class="ficha">
+                <dt>Docente</dt>
+                <dd>@(Model.Grupo.Docente?.NombreCompleto ?? "Sin asignar")
+                    @if (Model.Grupo.Docente is not null)
+                    {
+                        <span class="celda-secundaria">@Model.Grupo.Docente.Especialidad</span>
+                    }
+                </dd>
+                <dt>Horario</dt>
+                <dd>@Model.Grupo.Horario</dd>
+                <dt>Aula</dt>
+                <dd>@Model.Grupo.Aula</dd>
+                <dt>Periodo</dt>
+                <dd>@(Model.Grupo.PeriodoAcademico?.Nombre ?? "—")</dd>
+                <dt>Estado</dt>
+                <dd><indicador-estado grupo="@Model.Grupo.Estado" /></dd>
+                @if (Model.Grupo.ProgramaDocumentoId is not null)
+                {
+                    <dt>Programa</dt>
+                    <dd>
+                        <a asp-controller="Documentos" asp-action="Descargar" asp-route-id="@Model.Grupo.ProgramaDocumentoId">
+                            Descargar el programa del curso
+                        </a>
+                    </dd>
+                }
+            </dl>
+        </div>
+
+        @if (Model.Requisitos.Count > 0)
+        {
+            <div class="tarjeta">
+                <div class="tarjeta__titulo"><h3 class="sin-margen">Requisitos</h3></div>
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr><th>Curso requisito</th><th class="centro">Créditos</th><th class="angosta">Condición</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var requisito in Model.Requisitos)
+                            {
+                                var aprobado = Model.CursosAprobados.Contains(requisito.Id);
+                                <tr>
+                                    <td>
+                                        <span class="celda-principal">@requisito.Codigo — @requisito.Nombre</span>
+                                    </td>
+                                    <td class="centro numero">@requisito.Creditos</td>
+                                    <td class="angosta">
+                                        <span class="indicador @(aprobado ? "indicador--exito" : "indicador--error")">
+                                            @(aprobado ? "Aprobado" : "Pendiente")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        @if (Model.OtrosGrupos.Count > 0)
+        {
+            <div class="tarjeta">
+                <div class="tarjeta__titulo"><h3 class="sin-margen">Otros grupos del mismo curso</h3></div>
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr><th>Grupo</th><th>Horario</th><th>Docente</th><th class="angosta"></th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var otro in Model.OtrosGrupos)
+                            {
+                                <tr>
+                                    <td class="numero">Grupo @otro.NumeroGrupo.ToString("00")</td>
+                                    <td>@otro.Horario <span class="celda-secundaria">Aula @otro.Aula</span></td>
+                                    <td>@(otro.Docente?.NombreCompleto ?? "Sin asignar")</td>
+                                    <td class="angosta">
+                                        <a class="boton boton--sutil boton--pequeno"
+                                           asp-action="Detalle" asp-route-id="@otro.Id">Ver</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <aside class="tarjeta lateral" style="padding:22px">
+        <h3>Matricular este grupo</h3>
+
+        @if (Model.Fila is null)
+        {
+            <p class="tenue diminuto">
+                Este grupo no forma parte del plan de estudios de su carrera, así que no aparece
+                entre los que puede matricular.
+            </p>
+        }
+        else if (Model.Fila.EnMiMatricula)
+        {
+            <div class="aviso aviso--exito">
+                <svg class="icono" aria-hidden="true"><use href="#icono-verificado"></use></svg>
+                <p class="sin-margen">Ya tiene este grupo en su matrícula del periodo.</p>
+            </div>
+            <a class="boton" style="width:100%" asp-controller="Matricula" asp-action="MisCursos">
+                Ver mi matrícula
+            </a>
+        }
+        else if (Model.Fila.MotivoBloqueo is not null)
+        {
+            <div class="aviso aviso--atencion">
+                <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+                <p class="sin-margen">@Model.Fila.MotivoBloqueo</p>
+            </div>
+        }
+        else
+        {
+            <p class="tenue diminuto">
+                Al agregarlo queda en su matrícula en proceso. La inscripción se hace efectiva
+                cuando confirme desde la pantalla Mis cursos.
+            </p>
+
+            <form asp-controller="Matricula" asp-action="Agregar" method="post" data-evitar-doble-envio>
+                <input type="hidden" name="grupoId" value="@Model.Grupo.Id" />
+                <input type="hidden" name="retorno" value="@Context.Request.Path@Context.Request.QueryString" />
+                <button type="submit" class="boton boton--principal" style="width:100%">
+                    Agregar a mi matrícula
+                </button>
+            </form>
+        }
+
+        <hr class="separador" style="margin:18px 0" />
+
+        <span class="rotulo">Ocupación del grupo</span>
+        <barra-ocupacion inscritos="@Model.Inscritos" cupo="@Model.Grupo.CupoMaximo" />
+        <p class="diminuto tenue margen-arriba sin-margen">
+            @Model.Inscritos persona(s) matriculada(s) de un cupo de @Model.Grupo.CupoMaximo.
+        </p>
+    </aside>
+</div>

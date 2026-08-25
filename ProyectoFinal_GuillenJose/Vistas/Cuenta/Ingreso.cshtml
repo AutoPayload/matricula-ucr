@@ -1,0 +1,46 @@
+@model ModeloIngreso
+
+<div class="acceso">
+    <div class="acceso__marca">
+        <span class="marca">Matrícula<span>UCR</span></span>
+    </div>
+
+    <div class="tarjeta">
+        <h2>Iniciar sesión</h2>
+        <p class="tenue diminuto">Ingrese con el correo con el que se registró en el sistema.</p>
+
+        <form asp-action="Ingreso" method="post" class="formulario margen-arriba" data-evitar-doble-envio>
+            <input type="hidden" asp-for="RutaRetorno" />
+            <div asp-validation-summary="ModelOnly" class="aviso aviso--error"></div>
+
+            <div class="campo">
+                <label asp-for="Correo"></label>
+                <input asp-for="Correo" type="email" autocomplete="username" placeholder="nombre@@correo.cr" />
+                <span asp-validation-for="Correo" class="campo-error"></span>
+            </div>
+
+            <div class="campo">
+                <label asp-for="Clave"></label>
+                <input asp-for="Clave" autocomplete="current-password" />
+                <span asp-validation-for="Clave" class="campo-error"></span>
+            </div>
+
+            <label class="casilla">
+                <input asp-for="Recordarme" type="checkbox" />
+                <span>Mantener la sesión abierta en este equipo</span>
+            </label>
+
+            <button type="submit" class="boton boton--principal" style="width:100%">Entrar</button>
+        </form>
+
+        <div class="acceso__pie">
+            ¿No tiene cuenta? <a asp-action="Registro">Regístrese</a>
+            <span class="tenue"> · </span>
+            <a asp-controller="Inicio" asp-action="Acerca">Cuentas de demostración</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ScriptsValidacion" />
+}

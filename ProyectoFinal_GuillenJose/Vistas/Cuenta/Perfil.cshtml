@@ -1,0 +1,133 @@
+@model ModeloPerfil
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Cuenta</span>
+        <h1>Mi perfil</h1>
+        <p>Datos personales, fotografía y contraseña de acceso.</p>
+    </div>
+    <div class="acciones">
+        <span class="indicador indicador--acento">@Model.Rol</span>
+    </div>
+</div>
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Datos personales</h3></div>
+
+            <form asp-action="Perfil" method="post" enctype="multipart/form-data"
+                  class="formulario formulario--2" data-evitar-doble-envio>
+                <div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+                <div class="campo">
+                    <label asp-for="Nombre"></label>
+                    <input asp-for="Nombre" />
+                    <span asp-validation-for="Nombre" class="campo-error"></span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Apellidos"></label>
+                    <input asp-for="Apellidos" />
+                    <span asp-validation-for="Apellidos" class="campo-error"></span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Telefono"></label>
+                    <input asp-for="Telefono" placeholder="8888-8888" />
+                    <span asp-validation-for="Telefono" class="campo-error"></span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="FechaNacimiento"></label>
+                    <input asp-for="FechaNacimiento" type="date" />
+                    <span asp-validation-for="FechaNacimiento" class="campo-error"></span>
+                </div>
+
+                <div class="campo campo--ancho">
+                    <label asp-for="Fotografia"></label>
+                    <input asp-for="Fotografia" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                    <span class="ayuda">
+                        Formatos JPG, PNG o WEBP, hasta 5 MB. La fotografía aparece en la lista de
+                        clase que ve su docente.
+                    </span>
+                    <span asp-validation-for="Fotografia" class="campo-error"></span>
+                </div>
+
+                <div class="campo--ancho">
+                    <button type="submit" class="boton boton--principal">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Cambiar contraseña</h3></div>
+
+            <form asp-action="CambiarClave" method="post" class="formulario formulario--2"
+                  data-evitar-doble-envio>
+                <div class="campo campo--ancho">
+                    <label for="ClaveActual">Contraseña actual</label>
+                    <input id="ClaveActual" name="ClaveActual" type="password" autocomplete="current-password" required />
+                </div>
+
+                <div class="campo">
+                    <label for="ClaveNueva">Contraseña nueva</label>
+                    <input id="ClaveNueva" name="ClaveNueva" type="password" autocomplete="new-password" required minlength="8" />
+                    <span class="ayuda">Mínimo 8 caracteres, con una mayúscula y un número.</span>
+                </div>
+
+                <div class="campo">
+                    <label for="ConfirmacionClave">Confirmar contraseña nueva</label>
+                    <input id="ConfirmacionClave" name="ConfirmacionClave" type="password" autocomplete="new-password" required minlength="8" />
+                </div>
+
+                <div class="campo--ancho">
+                    <button type="submit" class="boton">Actualizar contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="tarjeta">
+        <div class="fila" style="gap:16px">
+            @if (Model.FotografiaDocumentoId is not null)
+            {
+                <img class="avatar avatar--grande"
+                     src="@Url.Action("Ver", "Documentos", new { id = Model.FotografiaDocumentoId })"
+                     alt="Fotografía de @Model.Nombre" />
+            }
+            else
+            {
+                <span class="avatar avatar--grande">
+                    @(Model.Nombre.Length > 0 ? Model.Nombre[..1] : "?")@(Model.Apellidos.Length > 0 ? Model.Apellidos[..1] : "?")
+                </span>
+            }
+            <div>
+                <h3 class="sin-margen">@Model.Nombre @Model.Apellidos</h3>
+                <span class="celda-secundaria">@Model.Correo</span>
+            </div>
+        </div>
+
+        <hr class="separador" />
+
+        <dl class="ficha">
+            <dt>Identificación</dt>
+            <dd class="numero">@Model.Identificacion</dd>
+            <dt>Rol</dt>
+            <dd>@Model.Rol</dd>
+            <dt>Carrera</dt>
+            <dd>@Model.NombreCarrera</dd>
+            <dt>Registro</dt>
+            <dd>@Model.FechaRegistro.ToString("dd/MM/yyyy")</dd>
+        </dl>
+
+        <p class="diminuto tenue margen-arriba sin-margen">
+            La identificación y la carrera solo las modifica la oficina de registro, porque de
+            ellas dependen el expediente y el comprobante de matrícula.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ScriptsValidacion" />
+}

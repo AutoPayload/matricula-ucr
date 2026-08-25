@@ -1,0 +1,84 @@
+@model ModeloRegistro
+
+<div class="acceso">
+    <div class="acceso__marca">
+        <span class="marca">Matrícula<span>UCR</span></span>
+    </div>
+
+    <div class="tarjeta">
+        <h2>Crear una cuenta</h2>
+        <p class="tenue diminuto">
+            Complete sus datos y elija la carrera en la que se empadrona. La carrera determina
+            cuáles cursos verá disponibles para matricular.
+        </p>
+
+        <form asp-action="Registro" method="post" class="formulario formulario--2 margen-arriba"
+              data-evitar-doble-envio>
+            <div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+            <div class="campo">
+                <label asp-for="Nombre"></label>
+                <input asp-for="Nombre" autocomplete="given-name" placeholder="José Andrés" />
+                <span asp-validation-for="Nombre" class="campo-error"></span>
+            </div>
+
+            <div class="campo">
+                <label asp-for="Apellidos"></label>
+                <input asp-for="Apellidos" autocomplete="family-name" placeholder="Guillén Agüero" />
+                <span asp-validation-for="Apellidos" class="campo-error"></span>
+            </div>
+
+            <div class="campo">
+                <label asp-for="Identificacion"></label>
+                <input asp-for="Identificacion" inputmode="numeric" placeholder="118330875" />
+                <span class="ayuda">Cédula nacional de 9 dígitos o DIMEX de 11 a 12.</span>
+                <span asp-validation-for="Identificacion" class="campo-error"></span>
+            </div>
+
+            <div class="campo">
+                <label asp-for="FechaNacimiento"></label>
+                <input asp-for="FechaNacimiento" type="date" />
+                <span asp-validation-for="FechaNacimiento" class="campo-error"></span>
+            </div>
+
+            <div class="campo campo--ancho">
+                <label asp-for="Correo"></label>
+                <input asp-for="Correo" type="email" autocomplete="email" placeholder="nombre@@correo.cr" />
+                <span asp-validation-for="Correo" class="campo-error"></span>
+            </div>
+
+            <div class="campo campo--ancho">
+                <label asp-for="CarreraId"></label>
+                <select asp-for="CarreraId" asp-items="Model.Carreras">
+                    <option value="">Seleccione una carrera</option>
+                </select>
+                <span asp-validation-for="CarreraId" class="campo-error"></span>
+            </div>
+
+            <div class="campo">
+                <label asp-for="Clave"></label>
+                <input asp-for="Clave" autocomplete="new-password" />
+                <span class="ayuda">Mínimo 8 caracteres, con una mayúscula y un número.</span>
+                <span asp-validation-for="Clave" class="campo-error"></span>
+            </div>
+
+            <div class="campo">
+                <label asp-for="ConfirmacionClave"></label>
+                <input asp-for="ConfirmacionClave" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmacionClave" class="campo-error"></span>
+            </div>
+
+            <div class="campo--ancho">
+                <button type="submit" class="boton boton--principal" style="width:100%">Registrarme</button>
+            </div>
+        </form>
+
+        <div class="acceso__pie">
+            ¿Ya tiene cuenta? <a asp-action="Ingreso">Inicie sesión</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ScriptsValidacion" />
+}

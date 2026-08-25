@@ -1,0 +1,113 @@
+@model ModeloCatalogo
+@*
+    Fragmento del catálogo. El servidor lo devuelve completo en la primera carga y lo devuelve
+    solo a él cuando la petición trae el encabezado X-Solicitud-Asincrona, que es como el
+    cliente refresca la tabla sin recargar la página.
+*@
+
+@if (Model.Resultado.TotalElementos == 0)
+{
+    <div class="vacio">
+        <h3>No hay cursos que coincidan</h3>
+        <p>
+            @if (Model.Filtro.HayFiltroActivo)
+            {
+                <text>Pruebe con otros criterios o limpie los filtros para ver toda la oferta de su carrera.</text>
+            }
+            else
+            {
+                <text>Todavía no hay grupos publicados para su carrera en este periodo.</text>
+            }
+        </p>
+    </div>
+}
+else
+{
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Curso</th>
+                    <th class="centro">Créd.</th>
+                    <th>Horario</th>
+                    <th>Docente</th>
+                    <th>Cupo</th>
+                    <th class="angosta"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var fila in Model.Resultado.Elementos)
+                {
+                    <tr>
+                        <td>
+                            <a class="celda-principal" asp-action="Detalle" asp-route-id="@fila.GrupoId">
+                                @fila.Codigo — @fila.Nombre
+                            </a>
+                            <span class="celda-secundaria">
+                                Grupo @fila.NumeroGrupo.ToString("00") · Ciclo @fila.Ciclo ·
+                                @fila.Modalidad @(fila.EsObligatorio ? "· Obligatorio" : "· Electivo")
+                            </span>
+                        </td>
+                        <td class="centro numero">@fila.Creditos</td>
+                        <td>
+                            @fila.Horario
+                            <span class="celda-secundaria">Aula @fila.Aula</span>
+                        </td>
+                        <td>@fila.Docente</td>
+                        <td>
+                            <barra-ocupacion inscritos="@fila.Inscritos" cupo="@fila.CupoMaximo" />
+                        </td>
+                        <td class="angosta">
+                            @if (fila.EnMiMatricula)
+                            {
+                                <span class="indicador indicador--exito">En su matrícula</span>
+                            }
+                            else if (fila.YaAprobado)
+                            {
+                                <span class="indicador indicador--neutro">Aprobado</span>
+                            }
+                            else if (fila.MotivoBloqueo is not null)
+                            {
+                                <span class="indicador indicador--atencion" title="@fila.MotivoBloqueo">
+                                    No disponible
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    <button type="button" class="boton boton--principal boton--pequeno"
+                                            data-agregar-grupo="@fila.GrupoId">Matricular</button>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+
+                    @if (fila.MotivoBloqueo is not null && !fila.EnMiMatricula && !fila.YaAprobado)
+                    {
+                        <tr>
+                            <td colspan="6" style="padding-top:0; border-bottom:1px solid var(--linea)">
+                                <span class="diminuto tenue">@fila.MotivoBloqueo</span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <paginador pagina-actual="@Model.Resultado.PaginaActual"
+               total-paginas="@Model.Resultado.TotalPaginas"
+               total-elementos="@Model.Resultado.TotalElementos"
+               primera-fila="@Model.Resultado.PrimeraFila"
+               ultima-fila="@Model.Resultado.UltimaFila"
+               accion="Disponibles"
+               controlador="Cursos"
+               nombre-singular="grupo"
+               nombre-plural="grupos"
+               filtro-Texto="@Model.Filtro.Texto"
+               filtro-Creditos="@Model.Filtro.Creditos?.ToString()"
+               filtro-Modalidad="@Model.Filtro.Modalidad?.ToString()"
+               filtro-Ciclo="@Model.Filtro.Ciclo?.ToString()"
+               filtro-SoloConCupo="@(Model.Filtro.SoloConCupo ? "true" : null)"
+               filtro-SoloHabilitados="@(Model.Filtro.SoloHabilitados ? "true" : null)" />
+}
