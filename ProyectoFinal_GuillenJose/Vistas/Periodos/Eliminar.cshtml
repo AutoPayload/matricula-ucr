@@ -1,0 +1,41 @@
+@model PeriodoAcademico
+
+<nav class="migas"><a asp-action="Index">Periodos</a><span>·</span>Eliminar</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Confirmación</span>
+        <h1>Eliminar periodo</h1>
+        <p>Solo se pueden eliminar periodos sin grupos ni matrículas asociadas.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:680px">
+    <dl class="ficha">
+        <dt>Código</dt><dd class="mono">@Model.Codigo</dd>
+        <dt>Nombre</dt><dd>@Model.Nombre</dd>
+        <dt>Lecciones</dt><dd>@Model.FechaInicio.ToString("dd/MM/yyyy") al @Model.FechaFin.ToString("dd/MM/yyyy")</dd>
+        <dt>Grupos</dt><dd class="numero">@Model.Grupos.Count</dd>
+        <dt>Matrículas</dt><dd class="numero">@Model.Matriculas.Count</dd>
+    </dl>
+
+    @if (Model.Grupos.Count > 0 || Model.Matriculas.Count > 0)
+    {
+        <div class="aviso aviso--error margen-arriba">
+            <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+            <div>
+                <strong>Este periodo no puede eliminarse</strong>
+                <p class="sin-margen">Tiene grupos o matrículas asociadas. Ciérrelo en lugar de borrarlo.</p>
+            </div>
+        </div>
+    }
+
+    <form asp-action="Eliminar" method="post" class="acciones margen-arriba" data-evitar-doble-envio>
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="boton boton--peligro"
+                disabled="@(Model.Grupos.Count > 0 || Model.Matriculas.Count > 0)">
+            Eliminar periodo
+        </button>
+        <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+    </form>
+</div>

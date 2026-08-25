@@ -1,0 +1,110 @@
+@model Docente
+
+<nav class="migas">
+    <a asp-action="Index">Personal docente</a><span>·</span>@Model.NombreCompleto
+</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.Especialidad</span>
+        <h1>@Model.NombreCompleto</h1>
+        <p>Identificación @Model.Identificacion · @Model.CorreoInstitucional</p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-action="Editar" asp-route-id="@Model.Id">
+            <svg class="icono" aria-hidden="true"><use href="#icono-editar"></use></svg>
+            Editar
+        </a>
+    </div>
+</div>
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Grupos asignados</h3></div>
+
+            @if (Model.Grupos.Count == 0)
+            {
+                <p class="diminuto tenue sin-margen">
+                    Esta persona todavía no tiene grupos asignados. Asígnelos desde el
+                    mantenimiento de grupos.
+                </p>
+            }
+            else
+            {
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr><th>Curso</th><th>Periodo</th><th class="centro">Grupo</th><th>Horario</th><th class="angosta">Acta</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grupo in Model.Grupos
+                                .OrderByDescending(g => g.PeriodoAcademico?.FechaInicio)
+                                .ThenBy(g => g.Curso?.Codigo))
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="celda-principal">@grupo.Curso?.Codigo — @grupo.Curso?.Nombre</span>
+                                        <span class="celda-secundaria">Aula @grupo.Aula</span>
+                                    </td>
+                                    <td>@grupo.PeriodoAcademico?.Codigo</td>
+                                    <td class="centro numero">@grupo.NumeroGrupo.ToString("00")</td>
+                                    <td>@grupo.Horario</td>
+                                    <td class="angosta">
+                                        <span class="indicador @(grupo.ActaCerrada ? "indicador--exito" : "indicador--atencion")">
+                                            @(grupo.ActaCerrada ? "Cerrada" : "Abierta")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <aside class="tarjeta lateral" style="padding:22px">
+        <div class="tarjeta__titulo"><h3 class="sin-margen">Acceso al portal</h3></div>
+
+        @if (Model.UsuarioId is not null)
+        {
+            <div class="aviso aviso--exito sin-margen">
+                <svg class="icono" aria-hidden="true"><use href="#icono-verificado"></use></svg>
+                <p class="sin-margen">
+                    Tiene cuenta activa con el usuario <strong>@Model.CorreoInstitucional</strong>.
+                </p>
+            </div>
+            <p class="diminuto tenue margen-arriba sin-margen">
+                Desde su cuenta puede ver la lista de clase, registrar notas, cerrar actas y
+                publicar el programa de cada curso.
+            </p>
+        }
+        else
+        {
+            <p class="diminuto tenue">
+                Esta persona no tiene acceso al portal. Al crear la cuenta se genera una
+                contraseña temporal que deberá comunicarle para que la cambie en su primer ingreso.
+            </p>
+
+            <form asp-action="CrearCuenta" method="post" data-evitar-doble-envio>
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="boton boton--principal" style="width:100%">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-llave"></use></svg>
+                    Crear cuenta de acceso
+                </button>
+            </form>
+        }
+
+        <hr class="separador" style="margin:18px 0" />
+
+        <dl class="ficha">
+            <dt>Estado</dt>
+            <dd><indicador-estado activo="@Model.Activo" /></dd>
+            <dt>Teléfono</dt>
+            <dd class="numero">@(Model.Telefono ?? "—")</dd>
+            <dt>Grupos</dt>
+            <dd class="numero">@Model.Grupos.Count</dd>
+        </dl>
+    </aside>
+</div>

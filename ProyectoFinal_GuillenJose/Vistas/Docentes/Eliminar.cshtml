@@ -1,0 +1,43 @@
+@model Docente
+
+<nav class="migas"><a asp-action="Index">Personal docente</a><span>·</span>Eliminar</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Confirmación</span>
+        <h1>Eliminar docente</h1>
+        <p>Revise las consecuencias antes de continuar.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:680px">
+    <dl class="ficha">
+        <dt>Nombre</dt><dd>@Model.NombreCompleto</dd>
+        <dt>Identificación</dt><dd class="numero">@Model.Identificacion</dd>
+        <dt>Especialidad</dt><dd>@Model.Especialidad</dd>
+        <dt>Correo</dt><dd>@Model.CorreoInstitucional</dd>
+        <dt>Grupos asignados</dt><dd class="numero">@Model.Grupos.Count</dd>
+    </dl>
+
+    @if (Model.Grupos.Count > 0)
+    {
+        <div class="aviso aviso--atencion margen-arriba">
+            <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+            <div>
+                <strong>Tiene grupos asignados</strong>
+                <p class="sin-margen">
+                    Se desactivará en lugar de eliminarse, para conservar la trazabilidad de los
+                    grupos que impartió.
+                </p>
+            </div>
+        </div>
+    }
+
+    <form asp-action="Eliminar" method="post" class="acciones margen-arriba" data-evitar-doble-envio>
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="boton boton--peligro">
+            @(Model.Grupos.Count > 0 ? "Desactivar docente" : "Eliminar docente")
+        </button>
+        <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+    </form>
+</div>

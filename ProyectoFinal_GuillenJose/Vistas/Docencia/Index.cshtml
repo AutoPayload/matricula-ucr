@@ -1,0 +1,111 @@
+@model ModeloMisGrupos
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.Especialidad</span>
+        <h1>Mis grupos</h1>
+        <p>@Model.NombreDocente · @(Model.Periodo?.Nombre ?? "Sin periodo asignado")</p>
+    </div>
+    @if (Model.Periodos.Count > 1)
+    {
+        <form method="get" asp-action="Index" class="acciones">
+            <div class="campo">
+                <label for="periodoId">Periodo</label>
+                <select id="periodoId" name="periodoId" onchange="this.form.submit()">
+                    @foreach (var periodo in Model.Periodos)
+                    {
+                        <option value="@periodo.Id" selected="@(Model.Periodo?.Id == periodo.Id)">
+                            @periodo.Nombre
+                        </option>
+                    }
+                </select>
+            </div>
+        </form>
+    }
+</div>
+
+@if (Model.Grupos.Count == 0)
+{
+    <div class="vacio">
+        <h3>No tiene grupos asignados</h3>
+        <p>
+            Cuando la oficina de registro le asigne un grupo en este periodo, aparecerá aquí junto
+            con su lista de clase.
+        </p>
+    </div>
+}
+else
+{
+    <div class="rejilla rejilla--3" style="margin-bottom:22px">
+        <div class="metrica">
+            <span class="rotulo">Grupos</span>
+            <div class="metrica__valor">@Model.Grupos.Count</div>
+            <div class="metrica__pie">en @(Model.Periodo?.Codigo ?? "el periodo")</div>
+        </div>
+        <div class="metrica">
+            <span class="rotulo">Estudiantes</span>
+            <div class="metrica__valor">@Model.TotalEstudiantes</div>
+            <div class="metrica__pie">matriculados en total</div>
+        </div>
+        <div class="metrica">
+            <span class="rotulo">Actas pendientes</span>
+            <div class="metrica__valor">@Model.ActasPendientes</div>
+            <div class="metrica__pie">de @Model.Grupos.Count grupos</div>
+        </div>
+    </div>
+
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Grupo</th>
+                    <th>Horario</th>
+                    <th>Matrícula</th>
+                    <th>Calificación</th>
+                    <th class="angosta">Acta</th>
+                    <th class="angosta"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var grupo in Model.Grupos)
+                {
+                    <tr>
+                        <td>
+                            <span class="celda-principal">@grupo.Etiqueta</span>
+                            <span class="celda-secundaria">
+                                @grupo.NombreCurso · @grupo.Creditos créditos
+                                @if (grupo.TienePrograma)
+                                {
+                                    <text> · Programa publicado</text>
+                                }
+                            </span>
+                        </td>
+                        <td>
+                            @grupo.Horario
+                            <span class="celda-secundaria">Aula @grupo.Aula</span>
+                        </td>
+                        <td>
+                            <barra-ocupacion inscritos="@grupo.Inscritos" cupo="@grupo.CupoMaximo" />
+                        </td>
+                        <td>
+                            <span class="numero">@grupo.NotasRegistradas de @grupo.Inscritos</span>
+                            <span class="celda-secundaria">
+                                @(grupo.CalificacionCompleta ? "Completa" : "Pendiente")
+                            </span>
+                        </td>
+                        <td class="angosta">
+                            <span class="indicador @(grupo.ActaCerrada ? "indicador--exito" : "indicador--atencion")">
+                                @(grupo.ActaCerrada ? "Cerrada" : "Abierta")
+                            </span>
+                        </td>
+                        <td class="angosta">
+                            <a class="boton boton--pequeno" asp-action="ListaClase" asp-route-id="@grupo.GrupoId">
+                                Lista de clase
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

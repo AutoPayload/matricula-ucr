@@ -1,0 +1,43 @@
+@model Curso
+
+<nav class="migas"><a asp-action="Index">Cursos</a><span>·</span>Eliminar</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Confirmación</span>
+        <h1>Eliminar curso</h1>
+        <p>Revise las consecuencias antes de continuar.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:680px">
+    <dl class="ficha">
+        <dt>Código</dt><dd class="mono">@Model.Codigo</dd>
+        <dt>Nombre</dt><dd>@Model.Nombre</dd>
+        <dt>Créditos</dt><dd class="numero">@Model.Creditos</dd>
+        <dt>Planes que lo incluyen</dt><dd class="numero">@Model.CursosCarrera.Count</dd>
+        <dt>Grupos</dt><dd class="numero">@Model.Grupos.Count</dd>
+    </dl>
+
+    @if (Model.Grupos.Count > 0)
+    {
+        <div class="aviso aviso--atencion margen-arriba">
+            <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+            <div>
+                <strong>El curso tiene grupos registrados</strong>
+                <p class="sin-margen">
+                    Se desactivará en lugar de eliminarse, para no romper el expediente de quienes
+                    ya lo llevaron.
+                </p>
+            </div>
+        </div>
+    }
+
+    <form asp-action="Eliminar" method="post" class="acciones margen-arriba" data-evitar-doble-envio>
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="boton boton--peligro">
+            @(Model.Grupos.Count > 0 ? "Desactivar curso" : "Eliminar curso")
+        </button>
+        <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+    </form>
+</div>

@@ -1,0 +1,44 @@
+@model Carrera
+@*
+    Formulario compartido por el alta y la edición de carreras: un solo lugar donde cambiar
+    los campos cuando el plan de estudios evolucione.
+*@
+<div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+<div class="campo">
+    <label asp-for="Codigo"></label>
+    <input asp-for="Codigo" placeholder="IS" style="text-transform:uppercase" />
+    <span class="ayuda">Sigla corta que identifica la carrera.</span>
+    <span asp-validation-for="Codigo" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="CreditosPlan"></label>
+    <input asp-for="CreditosPlan" type="number" min="60" max="220" />
+    <span asp-validation-for="CreditosPlan" class="campo-error"></span>
+</div>
+
+<div class="campo campo--ancho">
+    <label asp-for="Nombre"></label>
+    <input asp-for="Nombre" placeholder="Ingeniería en Sistemas de Información" />
+    <span asp-validation-for="Nombre" class="campo-error"></span>
+</div>
+
+<div class="campo campo--ancho">
+    <label asp-for="TituloOtorgado"></label>
+    <input asp-for="TituloOtorgado" placeholder="Bachillerato en..." />
+    <span asp-validation-for="TituloOtorgado" class="campo-error"></span>
+</div>
+
+<div class="campo campo--ancho">
+    <label asp-for="Descripcion"></label>
+    <textarea asp-for="Descripcion" rows="4"></textarea>
+    <span asp-validation-for="Descripcion" class="campo-error"></span>
+</div>
+
+<div class="campo--ancho">
+    <label class="casilla">
+        <input asp-for="Activa" type="checkbox" />
+        <span>La carrera está activa y admite matrícula</span>
+    </label>
+</div>

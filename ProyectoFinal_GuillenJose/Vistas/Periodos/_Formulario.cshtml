@@ -1,0 +1,46 @@
+@model PeriodoAcademico
+<div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+<div class="campo">
+    <label asp-for="Codigo"></label>
+    <input asp-for="Codigo" placeholder="III-2026" style="text-transform:uppercase" />
+    <span class="ayuda">Cuatrimestre en números romanos, guion y año. Por ejemplo III-2026.</span>
+    <span asp-validation-for="Codigo" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Nombre"></label>
+    <input asp-for="Nombre" placeholder="III Cuatrimestre 2026" />
+    <span asp-validation-for="Nombre" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="InicioMatricula"></label>
+    <input asp-for="InicioMatricula" type="date" />
+    <span asp-validation-for="InicioMatricula" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="FinMatricula"></label>
+    <input asp-for="FinMatricula" type="date" />
+    <span asp-validation-for="FinMatricula" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="FechaInicio"></label>
+    <input asp-for="FechaInicio" type="date" />
+    <span asp-validation-for="FechaInicio" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="FechaFin"></label>
+    <input asp-for="FechaFin" type="date" />
+    <span asp-validation-for="FechaFin" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="MaximoCreditos"></label>
+    <input asp-for="MaximoCreditos" type="number" min="6" max="24" />
+    <span class="ayuda">Créditos máximos que puede matricular una persona en el periodo.</span>
+    <span asp-validation-for="MaximoCreditos" class="campo-error"></span>
+</div>

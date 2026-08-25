@@ -1,0 +1,47 @@
+@model Curso
+<div asp-validation-summary="ModelOnly" class="aviso aviso--error campo--ancho"></div>
+
+<div class="campo">
+    <label asp-for="Codigo"></label>
+    <input asp-for="Codigo" placeholder="SC-101" style="text-transform:uppercase" />
+    <span class="ayuda">Sigla de 2 a 4 letras, guion y número. Por ejemplo SC-101.</span>
+    <span asp-validation-for="Codigo" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Nombre"></label>
+    <input asp-for="Nombre" placeholder="Programación I" />
+    <span asp-validation-for="Nombre" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Creditos"></label>
+    <input asp-for="Creditos" type="number" min="1" max="6" />
+    <span asp-validation-for="Creditos" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="HorasSemanales"></label>
+    <input asp-for="HorasSemanales" type="number" min="2" max="12" />
+    <span asp-validation-for="HorasSemanales" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label asp-for="Modalidad"></label>
+    <select asp-for="Modalidad" asp-items="Html.GetEnumSelectList<ModalidadCurso>()"></select>
+    <span asp-validation-for="Modalidad" class="campo-error"></span>
+</div>
+
+<div class="campo">
+    <label>Disponibilidad</label>
+    <label class="casilla" style="margin-top:8px">
+        <input asp-for="Activo" type="checkbox" />
+        <span>El curso está activo en el catálogo</span>
+    </label>
+</div>
+
+<div class="campo campo--ancho">
+    <label asp-for="Descripcion"></label>
+    <textarea asp-for="Descripcion" rows="4"></textarea>
+    <span asp-validation-for="Descripcion" class="campo-error"></span>
+</div>

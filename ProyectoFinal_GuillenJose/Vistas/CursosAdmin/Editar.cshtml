@@ -1,0 +1,27 @@
+@model Curso
+
+<nav class="migas">
+    <a asp-action="Index">Cursos</a><span>·</span>
+    <a asp-action="Detalles" asp-route-id="@Model.Id">@Model.Codigo</a><span>·</span>Editar
+</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Administración</span>
+        <h1>Editar curso</h1>
+        <p>Los cambios afectan a todos los planes de estudio que incluyen este curso.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:820px">
+    <form asp-action="Editar" method="post" class="formulario formulario--2" data-evitar-doble-envio>
+        <input type="hidden" asp-for="Id" />
+        <partial name="_Formulario" model="Model" />
+        <div class="campo--ancho acciones">
+            <button type="submit" class="boton boton--principal">Guardar cambios</button>
+            <a class="boton boton--sutil" asp-action="Detalles" asp-route-id="@Model.Id">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts { <partial name="_ScriptsValidacion" /> }

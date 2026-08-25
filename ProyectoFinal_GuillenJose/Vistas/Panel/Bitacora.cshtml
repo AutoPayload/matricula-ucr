@@ -1,0 +1,106 @@
+@model ResultadoPaginado<Bitacora>
+@{
+    var accion = ViewBag.Accion as string;
+    var entidad = ViewBag.Entidad as string;
+    var desde = ViewBag.Desde as DateTime?;
+    var hasta = ViewBag.Hasta as DateTime?;
+    var entidades = ViewBag.Entidades as List<string> ?? [];
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Auditoría</span>
+        <h1>Bitácora</h1>
+        <p>
+            Registro de todas las operaciones que modifican datos, con la persona que las hizo,
+            la dirección de origen y el detalle del movimiento.
+        </p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-action="Index">Volver al panel</a>
+    </div>
+</div>
+
+<form class="filtros" method="get" asp-action="Bitacora">
+    <div class="campo campo--busqueda">
+        <label for="accion">Acción</label>
+        <input type="search" id="accion" name="accion" value="@accion"
+               placeholder="Confirmar, eliminar, registrar..." autocomplete="off" />
+    </div>
+    <div class="campo">
+        <label for="entidad">Entidad</label>
+        <select id="entidad" name="entidad">
+            <option value="">Todas</option>
+            @foreach (var nombre in entidades)
+            {
+                <option value="@nombre" selected="@(entidad == nombre)">@nombre</option>
+            }
+        </select>
+    </div>
+    <div class="campo">
+        <label for="desde">Desde</label>
+        <input type="date" id="desde" name="desde" value="@desde?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="campo">
+        <label for="hasta">Hasta</label>
+        <input type="date" id="hasta" name="hasta" value="@hasta?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="acciones">
+        <button type="submit" class="boton boton--pequeno">Filtrar</button>
+        <a class="boton boton--sutil boton--pequeno" asp-action="Bitacora">Limpiar</a>
+    </div>
+</form>
+
+@if (Model.TotalElementos == 0)
+{
+    <div class="vacio">
+        <h3>No hay movimientos que coincidan</h3>
+        <p>Ajuste el rango de fechas o el tipo de acción.</p>
+    </div>
+}
+else
+{
+    <div class="tabla-envoltura">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Fecha y hora</th>
+                    <th>Persona</th>
+                    <th>Acción</th>
+                    <th>Entidad</th>
+                    <th>Detalle</th>
+                    <th>Origen</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var linea in Model.Elementos)
+                {
+                    <tr>
+                        <td class="diminuto numero">@linea.FechaHora.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>
+                            <span class="celda-principal">@linea.NombreUsuario</span>
+                            <span class="celda-secundaria">@linea.Rol</span>
+                        </td>
+                        <td>@linea.Accion</td>
+                        <td class="diminuto">
+                            @linea.Entidad
+                            @if (!string.IsNullOrEmpty(linea.EntidadId))
+                            {
+                                <span class="celda-secundaria mono">@linea.EntidadId</span>
+                            }
+                        </td>
+                        <td class="diminuto tenue">@linea.Detalle</td>
+                        <td class="mono diminuto">@linea.DireccionIp</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <paginador pagina-actual="@Model.PaginaActual" total-paginas="@Model.TotalPaginas"
+               total-elementos="@Model.TotalElementos" primera-fila="@Model.PrimeraFila"
+               ultima-fila="@Model.UltimaFila" accion="Bitacora" controlador="Panel"
+               nombre-singular="movimiento" nombre-plural="movimientos"
+               filtro-accion="@accion" filtro-entidad="@entidad"
+               filtro-desde="@desde?.ToString("yyyy-MM-dd")" filtro-hasta="@hasta?.ToString("yyyy-MM-dd")" />
+}

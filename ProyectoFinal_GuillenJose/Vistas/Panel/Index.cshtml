@@ -1,0 +1,162 @@
+@model TableroAdministrativo
+@{
+    var periodos = ViewBag.Periodos as List<PeriodoAcademico> ?? [];
+    var maximoCarrera = Model.MatriculaPorCarrera.Count == 0
+        ? 1
+        : Math.Max(1, Model.MatriculaPorCarrera.Max(c => c.Valor));
+
+    // El elemento <text> de SVG choca con la etiqueta <text> de Razor, de modo que el gráfico
+    // se compone aquí como marcado y la vista solo lo emite.
+    const int altoFila = 30;
+    var altoLienzo = (Model.MatriculaPorCarrera.Count * altoFila) + 10;
+    var lienzo = new System.Text.StringBuilder();
+
+    lienzo.Append($"<svg class=\"grafico\" viewBox=\"0 0 620 {altoLienzo}\" role=\"img\" ");
+    lienzo.Append("aria-label=\"Matrículas confirmadas por carrera\">");
+
+    for (var indice = 0; indice < Model.MatriculaPorCarrera.Count; indice++)
+    {
+        var serie = Model.MatriculaPorCarrera[indice];
+        var y = (indice * altoFila) + 6;
+        var ancho = Math.Max(2, (int)Math.Round(serie.Valor / (double)maximoCarrera * 384));
+        var etiqueta = System.Net.WebUtility.HtmlEncode(serie.Etiqueta);
+
+        lienzo.Append($"<text class=\"rotulo-eje\" x=\"0\" y=\"{y + 13}\">{etiqueta}</text>");
+        lienzo.Append($"<rect class=\"barra\" x=\"190\" y=\"{y}\" width=\"{ancho}\" height=\"16\"></rect>");
+        lienzo.Append($"<text class=\"valor\" x=\"{190 + ancho + 8}\" y=\"{y + 13}\">{serie.Valor}</text>");
+    }
+
+    lienzo.Append("</svg>");
+}
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.PeriodoEstado</span>
+        <h1>Panel de registro</h1>
+        <p>@Model.PeriodoNombre · <span id="sello-actualizacion" class="diminuto">Datos al cargar la página</span></p>
+    </div>
+    <div class="acciones">
+        @if (periodos.Count > 0)
+        {
+            <div class="campo">
+                <label for="periodo-panel">Periodo</label>
+                <select id="periodo-panel">
+                    @foreach (var periodo in periodos)
+                    {
+                        <option value="@periodo.Id" selected="@(periodo.Id == Model.PeriodoId)">@periodo.Nombre</option>
+                    }
+                </select>
+            </div>
+        }
+        <button type="button" id="actualizar-panel" class="boton" style="align-self:flex-end">Actualizar</button>
+        <a class="boton" asp-action="Matriculas" asp-route-periodoId="@Model.PeriodoId" style="align-self:flex-end">
+            Ver matrículas
+        </a>
+    </div>
+</div>
+
+<div id="panel-administrativo">
+    <div class="rejilla rejilla--4" style="margin-bottom:22px">
+        <div class="metrica">
+            <span class="rotulo">Matrículas confirmadas</span>
+            <div class="metrica__valor" id="indicador-confirmadas">@Model.MatriculasConfirmadas</div>
+            <div class="metrica__pie">de @Model.EstudiantesActivos estudiantes activos</div>
+        </div>
+        <div class="metrica">
+            <span class="rotulo">En proceso</span>
+            <div class="metrica__valor" id="indicador-proceso">@Model.MatriculasEnProceso</div>
+            <div class="metrica__pie">borradores sin confirmar</div>
+        </div>
+        <div class="metrica">
+            <span class="rotulo">Créditos vendidos</span>
+            <div class="metrica__valor" id="indicador-creditos">@Model.CreditosTotales</div>
+            <div class="metrica__pie">promedio de <span id="indicador-promedio">@Model.PromedioCreditos</span> por persona</div>
+        </div>
+        <div class="metrica">
+            <span class="rotulo">Ingreso proyectado</span>
+            <div class="metrica__valor" id="indicador-ingreso" style="font-size:22px">
+                @Model.IngresoProyectado.ToString("C0")
+            </div>
+            <div class="metrica__pie">matrículas confirmadas</div>
+        </div>
+    </div>
+
+    <div class="rejilla rejilla--2">
+        <div class="tarjeta">
+            <div class="tarjeta__titulo">
+                <h3 class="sin-margen">Matrícula por carrera</h3>
+                <span class="indicador indicador--neutro">@Model.CarrerasActivas carreras</span>
+            </div>
+
+            <div id="grafico-carreras">
+                @if (Model.MatriculaPorCarrera.Count == 0)
+                {
+                    <p class="tenue diminuto sin-margen">Sin matrículas confirmadas en el periodo.</p>
+                }
+                else
+                {
+                    @Html.Raw(lienzo.ToString())
+                }
+            </div>
+        </div>
+
+        <div class="tarjeta">
+            <div class="tarjeta__titulo">
+                <h3 class="sin-margen">Resumen institucional</h3>
+            </div>
+            <dl class="ficha">
+                <dt>Carreras activas</dt><dd class="numero">@Model.CarrerasActivas</dd>
+                <dt>Cursos activos</dt><dd class="numero">@Model.CursosActivos</dd>
+                <dt>Docentes activos</dt><dd class="numero">@Model.DocentesActivos</dd>
+                <dt>Grupos abiertos</dt><dd class="numero" id="indicador-grupos">@Model.GruposAbiertos</dd>
+                <dt>Estudiantes</dt><dd class="numero">@Model.EstudiantesActivos</dd>
+            </dl>
+            <div class="acciones margen-arriba">
+                <a class="boton boton--sutil boton--pequeno" asp-action="Bitacora">Ver bitácora</a>
+                <a class="boton boton--sutil boton--pequeno" asp-controller="Periodos" asp-action="Index">Periodos</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="tarjeta margen-arriba">
+        <div class="tarjeta__titulo">
+            <h3 class="sin-margen">Grupos con mayor ocupación</h3>
+            <span class="diminuto tenue">Los diez grupos más llenos del periodo</span>
+        </div>
+
+        <div id="grafico-ocupacion">
+            @if (Model.OcupacionPorGrupo.Count == 0)
+            {
+                <p class="tenue diminuto sin-margen">Sin grupos publicados en el periodo.</p>
+            }
+            else
+            {
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr><th>Grupo</th><th>Ocupación</th><th class="derecha">Porcentaje</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grupo in Model.OcupacionPorGrupo)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="celda-principal">@grupo.Etiqueta</span>
+                                        <span class="celda-secundaria">@grupo.NombreCurso</span>
+                                    </td>
+                                    <td><barra-ocupacion inscritos="@grupo.Inscritos" cupo="@grupo.CupoMaximo" /></td>
+                                    <td class="derecha numero">@grupo.PorcentajeOcupacion %</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<p class="diminuto tenue margen-arriba">
+    Los indicadores se actualizan sin recargar la página: el botón Actualizar y el selector de
+    periodo consultan la API interna del sistema con el token de la sesión.
+</p>

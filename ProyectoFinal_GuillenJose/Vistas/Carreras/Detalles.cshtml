@@ -1,0 +1,152 @@
+@model ModeloPlanEstudios
+
+<nav class="migas">
+    <a asp-action="Index">Carreras</a><span>·</span>@Model.Carrera.Codigo
+</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.Carrera.TituloOtorgado</span>
+        <h1>@Model.Carrera.Nombre</h1>
+        <p>@Model.Carrera.Descripcion</p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-action="Editar" asp-route-id="@Model.Carrera.Id">
+            <svg class="icono" aria-hidden="true"><use href="#icono-editar"></use></svg>
+            Editar
+        </a>
+    </div>
+</div>
+
+<div class="rejilla rejilla--4" style="margin-bottom:22px">
+    <div class="metrica">
+        <span class="rotulo">Código</span>
+        <div class="metrica__valor">@Model.Carrera.Codigo</div>
+    </div>
+    <div class="metrica">
+        <span class="rotulo">Créditos del plan</span>
+        <div class="metrica__valor">@Model.Carrera.CreditosPlan</div>
+        <div class="metrica__pie">@Model.CreditosDelPlan asignados en cursos</div>
+    </div>
+    <div class="metrica">
+        <span class="rotulo">Cursos</span>
+        <div class="metrica__valor">@Model.Plan.Count</div>
+    </div>
+    <div class="metrica">
+        <span class="rotulo">Estudiantes</span>
+        <div class="metrica__valor">@Model.CantidadEstudiantes</div>
+        <div class="metrica__pie">empadronados</div>
+    </div>
+</div>
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        @if (Model.Plan.Count == 0)
+        {
+            <div class="vacio">
+                <h3>El plan de estudios está vacío</h3>
+                <p>Agregue los cursos que conforman la carrera usando el formulario de la derecha.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var ciclo in Model.PorCiclo)
+            {
+                <div class="tarjeta">
+                    <div class="tarjeta__titulo">
+                        <h3 class="sin-margen">Ciclo @ciclo.Key</h3>
+                        <span class="indicador indicador--neutro numero">
+                            @ciclo.Sum(c => c.Curso?.Creditos ?? 0) créditos
+                        </span>
+                    </div>
+
+                    <div class="tabla-envoltura">
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Curso</th>
+                                    <th class="centro">Créd.</th>
+                                    <th>Modalidad</th>
+                                    <th class="angosta">Tipo</th>
+                                    <th class="angosta"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var asociacion in ciclo.OrderBy(c => c.Curso!.Codigo))
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="celda-principal">
+                                                @asociacion.Curso?.Codigo — @asociacion.Curso?.Nombre
+                                            </span>
+                                        </td>
+                                        <td class="centro numero">@asociacion.Curso?.Creditos</td>
+                                        <td>@asociacion.Curso?.Modalidad</td>
+                                        <td class="angosta">
+                                            <span class="indicador @(asociacion.EsObligatorio ? "indicador--acento" : "indicador--neutro")">
+                                                @(asociacion.EsObligatorio ? "Obligatorio" : "Electivo")
+                                            </span>
+                                        </td>
+                                        <td class="angosta">
+                                            <form asp-action="QuitarCurso" method="post" class="formulario-en-linea">
+                                                <input type="hidden" name="id" value="@Model.Carrera.Id" />
+                                                <input type="hidden" name="asociacionId" value="@asociacion.Id" />
+                                                <button type="submit" class="boton boton--sutil boton--pequeno"
+                                                        title="Quitar del plan">
+                                                    <svg class="icono" aria-hidden="true"><use href="#icono-quitar"></use></svg>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <aside class="tarjeta lateral" style="padding:22px">
+        <div class="tarjeta__titulo"><h3 class="sin-margen">Agregar curso al plan</h3></div>
+
+        @if (Model.CursosDisponibles.Count == 0)
+        {
+            <p class="diminuto tenue sin-margen">
+                Todos los cursos activos del catálogo ya forman parte de este plan de estudios.
+            </p>
+        }
+        else
+        {
+            <form asp-action="AgregarCurso" method="post" class="formulario" data-evitar-doble-envio>
+                <input type="hidden" name="id" value="@Model.Carrera.Id" />
+
+                <div class="campo">
+                    <label for="cursoId">Curso</label>
+                    <select id="cursoId" name="cursoId" asp-items="Model.CursosDisponibles" required>
+                        <option value="">Seleccione un curso</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="ciclo">Ciclo del plan</label>
+                    <input type="number" id="ciclo" name="ciclo" value="1" min="1" max="12" required />
+                </div>
+
+                <label class="casilla">
+                    <input type="checkbox" name="esObligatorio" value="true" checked />
+                    <span>Es un curso obligatorio</span>
+                </label>
+
+                <button type="submit" class="boton boton--principal">Agregar al plan</button>
+            </form>
+        }
+
+        <hr class="separador" style="margin:18px 0" />
+
+        <p class="diminuto tenue sin-margen">
+            El plan determina qué cursos ve el estudiantado de esta carrera en el catálogo de
+            matrícula. Un mismo curso puede pertenecer a varias carreras en ciclos distintos.
+        </p>
+    </aside>
+</div>

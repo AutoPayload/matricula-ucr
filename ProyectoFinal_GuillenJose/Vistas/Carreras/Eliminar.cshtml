@@ -1,0 +1,44 @@
+@model Carrera
+@{ var estudiantes = (int)(ViewBag.Estudiantes ?? 0); }
+
+<nav class="migas"><a asp-action="Index">Carreras</a><span>·</span>Eliminar</nav>
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Confirmación</span>
+        <h1>Eliminar carrera</h1>
+        <p>Revise las consecuencias antes de continuar. Esta acción no se puede deshacer.</p>
+    </div>
+</div>
+
+<div class="tarjeta" style="max-width:680px">
+    <dl class="ficha">
+        <dt>Código</dt><dd class="mono">@Model.Codigo</dd>
+        <dt>Nombre</dt><dd>@Model.Nombre</dd>
+        <dt>Título</dt><dd>@Model.TituloOtorgado</dd>
+        <dt>Cursos del plan</dt><dd class="numero">@Model.CursosCarrera.Count</dd>
+        <dt>Estudiantes</dt><dd class="numero">@estudiantes</dd>
+    </dl>
+
+    @if (estudiantes > 0)
+    {
+        <div class="aviso aviso--atencion margen-arriba">
+            <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+            <div>
+                <strong>La carrera tiene estudiantes empadronados</strong>
+                <p class="sin-margen">
+                    En lugar de eliminarla, el sistema la desactivará para conservar el expediente
+                    de esas @estudiantes persona(s).
+                </p>
+            </div>
+        </div>
+    }
+
+    <form asp-action="Eliminar" method="post" class="acciones margen-arriba" data-evitar-doble-envio>
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="boton boton--peligro">
+            @(estudiantes > 0 ? "Desactivar carrera" : "Eliminar carrera")
+        </button>
+        <a class="boton boton--sutil" asp-action="Index">Cancelar</a>
+    </form>
+</div>
