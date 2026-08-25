@@ -10,6 +10,22 @@ cualquier movimiento.
 
 ---
 
+## Origen del proyecto
+
+Esta entrega continúa el **Avance 2** del 14 de julio de 2026 y no empieza de cero:
+
+- Es la primera revisión del repositorio: `git log --oneline --reverse` la muestra como
+  «Avance 2 del proyecto final».
+- Sus dos migraciones siguen siendo las dos primeras del proyecto, con el identificador y el
+  nombre originales, y la tercera lleva el esquema al modelo académico de hoy.
+- Sus direcciones siguen funcionando gracias a `Controladores/CompatibilidadController.cs`.
+- Su cuenta de administración, `admin@universidad.local` con `Admin123!`, sigue sembrada.
+
+La correspondencia completa —clase por clase, columna por columna y dirección por dirección—
+está en `../Documentacion/Trazabilidad_Avance2.md`.
+
+---
+
 ## Puesta en marcha
 
     dotnet restore
@@ -31,7 +47,7 @@ Cuentas de prueba en `../Documentacion/Instrucciones_de_uso.md`, y también dent
     ├─ ModelosVista/                    Modelos de vista y objetos de transferencia
     ├─ Datos/                           Contexto de EF Core, migraciones y sembrador
     ├─ Servicios/                       Reglas de negocio, almacén, tokens, PDF y bitácora
-    ├─ Controladores/                   Controladores MVC por rol
+    ├─ Controladores/                   Controladores MVC por rol, y las rutas heredadas del avance 2
     ├─ Api/                             Servicios REST consumidos por AJAX e integraciones
     ├─ Componentes/                     View components propios
     ├─ AyudantesEtiqueta/               Tag helpers propios

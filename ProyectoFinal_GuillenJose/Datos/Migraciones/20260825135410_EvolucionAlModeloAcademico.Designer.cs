@@ -12,8 +12,8 @@ using ProyectoFinal_GuillenJose.Datos;
 namespace ProyectoFinal_GuillenJose.Datos.Migraciones
 {
     [DbContext(typeof(ContextoMatricula))]
-    [Migration("20260825045910_InicialMatriculaUCR")]
-    partial class InicialMatriculaUCR
+    [Migration("20260825135410_EvolucionAlModeloAcademico")]
+    partial class EvolucionAlModeloAcademico
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
