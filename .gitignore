@@ -1,0 +1,38 @@
+# Artefactos de compilación
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Caché de Visual Studio y de Visual Studio Code
+.vs/
+.vscode/
+*.vsidx
+
+# Resultados de pruebas
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+
+# Archivos cargados por las personas usuarias: no forman parte del código fuente
+ProyectoFinal_GuillenJose/Almacenamiento/*
+!ProyectoFinal_GuillenJose/Almacenamiento/.gitkeep
+
+# Bases de datos locales
+*.mdf
+*.ldf
+
+# Configuración con secretos reales; el repositorio solo lleva la de desarrollo
+appsettings.Production.json
+appsettings.Local.json
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store

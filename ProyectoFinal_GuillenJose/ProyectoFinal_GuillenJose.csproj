@@ -4,16 +4,34 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-ProyectoFinal_GuillenJose-661332d7-52b3-4de4-b697-c5544d3c5107</UserSecretsId>
+    <RootNamespace>ProyectoFinal_GuillenJose</RootNamespace>
+    <AssemblyName>ProyectoFinal_GuillenJose</AssemblyName>
+    <!-- El sistema trabaja en espanol de Costa Rica: se requiere la globalizacion completa. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <UserSecretsId>proyecto-final-guillenjose-matricula-universitaria</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <!-- Tecnologia no vista en el curso: generacion de documentos PDF. -->
+    <PackageReference Include="QuestPDF" Version="2026.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Carpeta de archivos cargados por las personas usuarias; se excluye del compilado. -->
+    <Content Remove="Almacenamiento\**" />
+    <None Include="Almacenamiento\**" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ProyectoFinal_GuillenJose.Pruebas" />
   </ItemGroup>
 
 </Project>

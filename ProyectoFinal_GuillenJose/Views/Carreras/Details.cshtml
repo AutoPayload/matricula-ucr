@@ -1,6 +1,0 @@
-﻿@model Carrera
-@{ ViewData["Title"] = "Detalle de carrera"; }
-
-<h1>@Model.Nombre</h1><hr />
-<dl class="row"><dt class="col-sm-3">Descripción</dt><dd class="col-sm-9">@Model.Descripcion</dd><dt class="col-sm-3">Cursos asociados</dt><dd class="col-sm-9">@(Model.Cursos.Any() ? string.Join(", ", Model.Cursos.Select(c => c.Nombre)) : "Ninguno")</dd></dl>
-<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a> <a asp-action="Index" class="btn btn-secondary">Volver</a>

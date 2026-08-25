@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ProyectoFinal_GuillenJose/ProyectoFinal_GuillenJose.csproj" />
+  <Project Path="ProyectoFinal_GuillenJose.Pruebas/ProyectoFinal_GuillenJose.Pruebas.csproj" />
 </Solution>

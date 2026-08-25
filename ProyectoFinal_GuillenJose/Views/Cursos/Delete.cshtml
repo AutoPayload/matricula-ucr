@@ -1,7 +1,0 @@
-﻿@model Curso
-@{ ViewData["Title"] = "Eliminar curso"; }
-
-<h1>Eliminar curso</h1><hr />
-<div class="alert alert-danger"><h4>¿Confirma que desea eliminar este curso?</h4></div>
-<dl class="row"><dt class="col-sm-3">Código</dt><dd class="col-sm-9">@Model.Codigo</dd><dt class="col-sm-3">Nombre</dt><dd class="col-sm-9">@Model.Nombre</dd><dt class="col-sm-3">Carrera</dt><dd class="col-sm-9">@(Model.Carrera?.Nombre ?? "-")</dd><dt class="col-sm-3">Docente</dt><dd class="col-sm-9">@(Model.Docente?.Nombre ?? "Sin asignar")</dd></dl>
-<form asp-action="Delete"><input type="hidden" asp-for="Id" /><button type="submit" class="btn btn-danger">Eliminar</button> <a asp-action="Index" class="btn btn-secondary">Cancelar</a></form>
