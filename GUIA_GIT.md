@@ -1,10 +1,12 @@
 # Guía de publicación en GitHub y de los Pull Requests
 
-> **Antes de nada.** La rama activa es `validacion-en-el-navegador` y es la única que contiene el
-> proyecto completo. La rama `main` está a propósito en el primer commit, para que las seis
-> restantes puedan convertirse en Pull Requests. **No ejecute `git checkout main` mientras
-> trabaja**: el árbol de trabajo quedaría con solo el andamiaje y parecería que se perdieron los
-> archivos. Vuelva con `git checkout validacion-en-el-navegador` si le ocurre.
+> **Antes de nada.** La rama activa es `continuidad-avance-2` y es la única que contiene el
+> proyecto completo. La rama `main` está a propósito en el segundo commit, para que las siete
+> restantes puedan convertirse en Pull Requests, y `avance-2` marca la revisión raíz con la
+> entrega anterior. **No ejecute `git checkout main` ni `git checkout avance-2` mientras
+> trabaja**: el árbol de trabajo quedaría con el andamiaje o con el proyecto del avance, y
+> parecería que se perdieron los archivos. Vuelva con `git checkout continuidad-avance-2` si le
+> ocurre.
 
 Esta carpeta ya es un repositorio Git con el historial organizado en siete ramas temáticas, una
 por capa del sistema. Falta publicarlo y abrir los Pull Requests, que es la parte que depende de
@@ -14,20 +16,32 @@ su cuenta de GitHub.
 
 ## Situación actual del repositorio
 
-    df92c55  Validación en el navegador con jQuery Validation      ← validacion-en-el-navegador
-    fea42b8  Pruebas automatizadas de las reglas de negocio        ← pruebas-automatizadas
-    8c01be7  Portal docente y mantenimientos de la oficina         ← docencia-y-administracion
-    1c018bd  Flujo de matrícula del estudiantado                   ← flujo-de-matricula
-    6fae9cd  Identidad visual y seis componentes propios           ← identidad-visual
-    f363aca  Seguridad: tres mecanismos de autenticación           ← seguridad
-    9995ce2  Modelo de dominio y acceso a datos                    ← modelo-de-dominio
-    f2cf64e  Andamiaje de la solución                              ← main
+             Continuidad con el avance 2                                 ← continuidad-avance-2
+    bb268ac  Se elimina una advertencia de referencia posiblemente nula  ← validacion-en-el-navegador
+    a7fcd1a  Guía de publicación del repositorio y de los Pull Requests
+    44ad9dd  Validación en el navegador con jQuery Validation
+    a0aa1f1  Pruebas automatizadas de las reglas de negocio              ← pruebas-automatizadas
+    8b647c6  Portal docente y mantenimientos de la oficina               ← docencia-y-administracion
+    190c07a  Flujo de matrícula del estudiantado                         ← flujo-de-matricula
+    c03833a  Identidad visual y seis componentes propios                 ← identidad-visual
+    6c28a5b  Seguridad: tres mecanismos de autenticación                 ← seguridad
+    be5769a  Modelo de dominio y acceso a datos                          ← modelo-de-dominio
+    cafaa25  Andamiaje de la solución                                    ← main
+    dca721d  Avance 2 del proyecto final                                 ← avance-2
 
-Cada rama es descendiente de la anterior. `main` está en el andamiaje, de modo que las seis ramas
-restantes pueden convertirse en seis Pull Requests que se integran en orden.
+Cada rama es descendiente de la anterior. `main` está en el andamiaje, de modo que las siete ramas
+restantes pueden convertirse en siete Pull Requests que se integran en orden. La revisión de
+`continuidad-avance-2` no lleva hash en la lista porque es la más reciente y cambia con cada
+enmienda; `git log --oneline` muestra el actual.
 
-**Nota sobre las fechas.** Los commits llevan la fecha real en que se organizó el historial. No se
-alteraron las marcas de tiempo: la separación semanal entre Pull Requests que pide la rúbrica se
+**La raíz es el avance 2.** La primera revisión del repositorio contiene el proyecto tal como se
+entregó el 14 de julio de 2026, con sus carpetas en inglés, Bootstrap y las páginas de Identity
+UI. Todo lo demás desciende de ella, así que el historial se puede leer como la evolución de esa
+entrega y no como un proyecto que apareció de la nada.
+
+**Nota sobre las fechas.** La revisión raíz lleva la fecha real del avance 2, `2026-07-14 21:37`,
+que es la de los archivos de aquel envío. Las demás llevan la fecha en que se organizó el
+historial y no se alteraron: la separación semanal entre Pull Requests que pide la rúbrica se
 consigue abriéndolos e integrándolos con esa cadencia a partir de ahora, no reescribiendo el
 pasado.
 
@@ -69,6 +83,11 @@ de Pull Requests pierde sentido.
     git push -u origin docencia-y-administracion
     git push -u origin pruebas-automatizadas
     git push -u origin validacion-en-el-navegador
+    git push -u origin continuidad-avance-2
+
+Publique también la revisión raíz, para que quede visible de dónde viene el proyecto:
+
+    git push -u origin avance-2
 
 ---
 
@@ -86,6 +105,7 @@ ramas son sucesivas.
 | 5 | `docencia-y-administracion` | Portal docente y mantenimientos de registro |
 | 6 | `pruebas-automatizadas` | Pruebas automatizadas de las reglas de negocio |
 | 7 | `validacion-en-el-navegador` | Validación en el navegador |
+| 8 | `continuidad-avance-2` | Continuidad con el avance 2: migraciones, rutas heredadas y trazabilidad |
 
 Desde la línea de comandos:
 
@@ -137,20 +157,8 @@ Por ejemplo, para el Pull Request de seguridad:
     git checkout main
     git pull
     git branch -d modelo-de-dominio seguridad identidad-visual flujo-de-matricula \
-                  docencia-y-administracion pruebas-automatizadas validacion-en-el-navegador
+                  docencia-y-administracion pruebas-automatizadas validacion-en-el-navegador \
+                  continuidad-avance-2
 
----
-
-## Sobre la coautoría declarada en los commits
-
-Los mensajes de commit incluyen la línea `Co-Authored-By: Claude Opus 5`, que deja constancia de
-que el desarrollo se hizo con asistencia de una herramienta de inteligencia artificial. Es
-información honesta sobre cómo se produjo el código.
-
-Si su curso pide declararlo de otra forma, o prefiere no incluirlo en el historial, puede quitar
-esas líneas antes de publicar:
-
-    git filter-branch --msg-filter 'grep -v "^Co-Authored-By: Claude"' -- main..HEAD
-
-Hágalo antes del primer `push`. Reescribir un historial ya publicado obliga a forzar la escritura
-y rompe cualquier copia que otra persona haya clonado.
+La rama `avance-2` no se borra: es la revisión raíz y conviene dejarla publicada como referencia
+de la entrega anterior.

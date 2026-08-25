@@ -20,6 +20,14 @@ public static class SembradorDatos
     public const string ClaveDocencia = "Docente2026*";
     public const string ClaveEstudiantado = "Estudiante2026*";
 
+    /// <summary>
+    /// Cuenta de administración con la que se demostró el Avance 2. Se sigue sembrando para que
+    /// las credenciales de aquella entrega abran el sistema tal como abrían entonces, y para que
+    /// quien retome el proyecto por donde lo dejó no tenga que buscar una contraseña nueva.
+    /// </summary>
+    public const string CorreoAdministracionAvance2 = "admin@universidad.local";
+    public const string ClaveAdministracionAvance2 = "Admin123!";
+
     public static async Task SembrarAsync(IServiceProvider proveedor)
     {
         var contexto = proveedor.GetRequiredService<ContextoMatricula>();
@@ -68,27 +76,50 @@ public static class SembradorDatos
     private static async Task AsegurarAdministracionAsync(
         UserManager<Usuario> gestorUsuarios, ContextoMatricula contexto)
     {
-        var administrador = await gestorUsuarios.FindByEmailAsync(CorreoAdministracion);
+        await AsegurarCuentaAdministradoraAsync(
+            gestorUsuarios, CorreoAdministracion, ClaveAdministracion,
+            "101110111", "Oficina", "de Registro");
+
+        // La cuenta del Avance 2 sobrevive junto a la actual. No es un duplicado por descuido:
+        // es la continuidad de la entrega anterior, y aparece en el listado de cuentas con ese
+        // nombre para que se distinga de un vistazo.
+        await AsegurarCuentaAdministradoraAsync(
+            gestorUsuarios, CorreoAdministracionAvance2, ClaveAdministracionAvance2,
+            "101110112", "Administración", "del Avance 2");
+
+        await contexto.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Crea la cuenta si no existe y garantiza que tenga el rol de administración. Se llama una
+    /// vez por cada cuenta de oficina, y es idempotente: sobre una base ya sembrada no duplica
+    /// nada ni sobrescribe la contraseña que la persona haya cambiado.
+    /// </summary>
+    private static async Task AsegurarCuentaAdministradoraAsync(
+        UserManager<Usuario> gestorUsuarios,
+        string correo, string clave, string identificacion, string nombre, string apellidos)
+    {
+        var administrador = await gestorUsuarios.FindByEmailAsync(correo);
 
         if (administrador is null)
         {
             administrador = new Usuario
             {
-                UserName = CorreoAdministracion,
-                Email = CorreoAdministracion,
+                UserName = correo,
+                Email = correo,
                 EmailConfirmed = true,
-                Identificacion = "101110111",
-                Nombre = "Oficina",
-                Apellidos = "de Registro",
+                Identificacion = identificacion,
+                Nombre = nombre,
+                Apellidos = apellidos,
                 FechaRegistro = DateTime.Now
             };
 
-            var resultado = await gestorUsuarios.CreateAsync(administrador, ClaveAdministracion);
+            var resultado = await gestorUsuarios.CreateAsync(administrador, clave);
 
             if (!resultado.Succeeded)
             {
                 throw new InvalidOperationException(
-                    "No se pudo crear la cuenta de administración: " +
+                    $"No se pudo crear la cuenta de administración {correo}: " +
                     string.Join("; ", resultado.Errors.Select(e => e.Description)));
             }
         }
@@ -97,8 +128,6 @@ public static class SembradorDatos
         {
             await gestorUsuarios.AddToRoleAsync(administrador, RolesSistema.Administrador);
         }
-
-        await contexto.SaveChangesAsync();
     }
 
     // =================================================================================
