@@ -1,0 +1,224 @@
+@model ModeloMisCursos
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@(Model.Periodo?.Nombre ?? "Sin periodo")</span>
+        <h1>Mis cursos</h1>
+        <p>
+            Los cursos que lleva este periodo. Mientras la matrícula esté en proceso puede quitar
+            cursos; una vez confirmada, cualquier movimiento se gestiona en la oficina de registro.
+        </p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-controller="Cursos" asp-action="Disponibles">Agregar cursos</a>
+    </div>
+</div>
+
+@if (Model.Periodo is null)
+{
+    <div class="vacio">
+        <h3>No hay un periodo configurado</h3>
+        <p>La oficina de registro todavía no ha publicado el calendario académico.</p>
+    </div>
+}
+else
+{
+    @await Component.InvokeAsync("AvisoPeriodo")
+
+    <div class="rejilla rejilla--principal">
+        <div class="columna">
+            @if (Model.Lineas.Count == 0)
+            {
+                <div class="vacio">
+                    <h3>Todavía no ha agregado cursos</h3>
+                    <p>
+                        Vaya al catálogo de cursos disponibles de su carrera y agregue los que
+                        desea llevar. Necesita al menos @Model.CreditosMinimos créditos para confirmar.
+                    </p>
+                    <div class="acciones margen-arriba" style="justify-content:center">
+                        <a class="boton boton--principal" asp-controller="Cursos" asp-action="Disponibles">
+                            Ver cursos disponibles
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="tabla-envoltura">
+                    <table class="tabla">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th class="centro">Créd.</th>
+                                <th>Horario</th>
+                                <th>Docente</th>
+                                <th class="angosta">Estado</th>
+                                @if (Model.EsBorrador)
+                                {
+                                    <th class="angosta"></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var linea in Model.Lineas)
+                            {
+                                <tr data-fila-detalle>
+                                    <td>
+                                        <span class="celda-principal">
+                                            @linea.Grupo?.Curso?.Codigo — @linea.Grupo?.Curso?.Nombre
+                                        </span>
+                                        <span class="celda-secundaria">
+                                            Grupo @linea.Grupo?.NumeroGrupo.ToString("00") ·
+                                            Aula @linea.Grupo?.Aula
+                                        </span>
+                                    </td>
+                                    <td class="centro numero">@linea.Grupo?.Curso?.Creditos</td>
+                                    <td>@linea.Grupo?.Horario</td>
+                                    <td>@(linea.Grupo?.Docente?.NombreCompleto ?? "Sin asignar")</td>
+                                    <td class="angosta">
+                                        @if (linea.NotaFinal is not null)
+                                        {
+                                            <indicador-estado nota="@linea.NotaFinal" />
+                                        }
+                                        else
+                                        {
+                                            <indicador-estado detalle="@linea.Estado" />
+                                        }
+                                    </td>
+                                    @if (Model.EsBorrador)
+                                    {
+                                        <td class="angosta">
+                                            <form asp-action="Quitar" method="post" class="formulario-en-linea">
+                                                <input type="hidden" name="detalleId" value="@linea.Id" />
+                                                <button type="submit" class="boton boton--sutil boton--pequeno">
+                                                    <svg class="icono" aria-hidden="true"><use href="#icono-quitar"></use></svg>
+                                                    Quitar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (Model.Historial.Count > 0)
+            {
+                <div class="tarjeta">
+                    <div class="tarjeta__titulo">
+                        <h3 class="sin-margen">Matrículas anteriores</h3>
+                        <a class="diminuto" asp-controller="Expediente" asp-action="Index">Ver expediente completo</a>
+                    </div>
+                    <div class="tabla-envoltura">
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Periodo</th><th>Comprobante</th>
+                                    <th class="centro">Créditos</th><th class="angosta">Estado</th>
+                                    <th class="angosta"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var anterior in Model.Historial)
+                                {
+                                    <tr>
+                                        <td>@anterior.PeriodoAcademico?.Nombre</td>
+                                        <td class="mono diminuto">@(anterior.NumeroComprobante ?? "—")</td>
+                                        <td class="centro numero">@anterior.TotalCreditos</td>
+                                        <td class="angosta"><indicador-estado matricula="@anterior.Estado" /></td>
+                                        <td class="angosta">
+                                            @if (anterior.ComprobanteDocumentoId is not null)
+                                            {
+                                                <a class="boton boton--sutil boton--pequeno"
+                                                   asp-action="Comprobante" asp-route-id="@anterior.Id">
+                                                    <svg class="icono" aria-hidden="true"><use href="#icono-descargar"></use></svg>
+                                                    PDF
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <aside class="tarjeta lateral" style="padding:22px">
+            <div class="tarjeta__titulo">
+                <h3 class="sin-margen">Resumen</h3>
+                @if (Model.Matricula is not null)
+                {
+                    <indicador-estado matricula="@Model.Matricula.Estado" />
+                }
+            </div>
+
+            <dl class="ficha">
+                <dt>Cursos</dt>
+                <dd class="numero">@Model.Lineas.Count</dd>
+                <dt>Créditos</dt>
+                <dd class="numero">@Model.TotalCreditos de @Model.Periodo.MaximoCreditos</dd>
+                <dt>Monto</dt>
+                <dd class="numero">@Model.MontoEstimado.ToString("C0")</dd>
+                @if (Model.EstaConfirmada && Model.Matricula?.NumeroComprobante is not null)
+                {
+                    <dt>Comprobante</dt>
+                    <dd class="mono diminuto">@Model.Matricula.NumeroComprobante</dd>
+                    <dt>Confirmada</dt>
+                    <dd>@Model.Matricula.FechaConfirmacion?.ToString("dd/MM/yyyy HH:mm")</dd>
+                }
+            </dl>
+
+            <hr class="separador" style="margin:18px 0" />
+
+            @if (Model.EstaConfirmada)
+            {
+                <a class="boton boton--principal" style="width:100%"
+                   asp-action="Comprobante" asp-route-id="@Model.Matricula!.Id">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-descargar"></use></svg>
+                    Descargar comprobante
+                </a>
+                <p class="diminuto tenue margen-arriba sin-margen">
+                    Su matrícula quedó firme. El comprobante en PDF es el respaldo oficial de la
+                    inscripción de este periodo.
+                </p>
+            }
+            else if (!Model.VentanaAbierta)
+            {
+                <div class="aviso aviso--atencion sin-margen">
+                    <svg class="icono" aria-hidden="true"><use href="#icono-alerta"></use></svg>
+                    <p class="sin-margen">La ventana de matrícula está cerrada.</p>
+                </div>
+            }
+            else
+            {
+                <form asp-action="Confirmar" method="post" data-evitar-doble-envio>
+                    <button type="submit" id="boton-confirmar" class="boton boton--principal"
+                            style="width:100%" disabled="@(!Model.PuedeConfirmar)">
+                        Confirmar matrícula
+                    </button>
+                </form>
+
+                <p class="diminuto tenue margen-arriba sin-margen">
+                    @if (Model.TotalCreditos < Model.CreditosMinimos)
+                    {
+                        <text>
+                            Necesita al menos @Model.CreditosMinimos créditos para confirmar y
+                            lleva @Model.TotalCreditos.
+                        </text>
+                    }
+                    else
+                    {
+                        <text>
+                            Al confirmar se emite el número de comprobante y se genera el PDF.
+                            Después de eso no podrá quitar cursos desde el portal.
+                        </text>
+                    }
+                </p>
+            }
+        </aside>
+    </div>
+}

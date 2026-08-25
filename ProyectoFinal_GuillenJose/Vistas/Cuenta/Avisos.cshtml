@@ -1,0 +1,39 @@
+@model ModeloAvisos
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">Notificaciones</span>
+        <h1>Avisos</h1>
+        <p>Mensajes que el sistema le ha enviado. Al abrir esta página quedan marcados como leídos.</p>
+    </div>
+</div>
+
+@if (Model.Avisos.Count == 0)
+{
+    <div class="vacio">
+        <h3>No tiene avisos</h3>
+        <p>Aquí aparecerán los mensajes sobre la apertura de matrícula, la confirmación de su inscripción y la publicación de notas.</p>
+    </div>
+}
+else
+{
+    <div class="tarjeta">
+        <ul class="lista-avisos">
+            @foreach (var aviso in Model.Avisos)
+            {
+                <li class="@(aviso.Leida ? "" : "pendiente")">
+                    <strong>@aviso.Titulo</strong>
+                    <p>@aviso.Mensaje</p>
+                    <time datetime="@aviso.FechaCreacion.ToString("s")">
+                        @aviso.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                    </time>
+                    @if (!string.IsNullOrEmpty(aviso.Enlace))
+                    {
+                        <span class="tenue"> · </span>
+                        <a class="diminuto" href="@aviso.Enlace">Abrir</a>
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+}

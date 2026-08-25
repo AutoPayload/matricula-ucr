@@ -1,0 +1,109 @@
+@model ModeloCatalogo
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.NombreCarrera</span>
+        <h1>Cursos disponibles</h1>
+        <p>
+            Oferta del plan de estudios de su carrera para @(Model.Periodo?.Nombre ?? "el periodo vigente").
+            El sistema indica en cada fila si puede matricular el grupo y, si no, por qué.
+        </p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-controller="Matricula" asp-action="MisCursos">Ver mi matrícula</a>
+    </div>
+</div>
+
+@await Component.InvokeAsync("AvisoPeriodo")
+
+<div class="rejilla rejilla--principal">
+    <div>
+        <form id="filtros-catalogo" class="filtros" method="get" asp-action="Disponibles">
+            <div class="campo campo--busqueda">
+                <label for="Texto">Buscar</label>
+                <input type="search" id="Texto" name="Texto" value="@Model.Filtro.Texto"
+                       placeholder="Código, nombre del curso o docente" autocomplete="off" />
+            </div>
+
+            <div class="campo">
+                <label for="Creditos">Créditos</label>
+                <select id="Creditos" name="Creditos">
+                    <option value="">Todos</option>
+                    @for (var valor = 1; valor <= 6; valor++)
+                    {
+                        <option value="@valor" selected="@(Model.Filtro.Creditos == valor)">@valor créditos</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="Modalidad">Modalidad</label>
+                <select id="Modalidad" name="Modalidad">
+                    <option value="">Todas</option>
+                    @foreach (var modalidad in Enum.GetValues<ModalidadCurso>())
+                    {
+                        <option value="@modalidad" selected="@(Model.Filtro.Modalidad == modalidad)">@modalidad</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="Ciclo">Ciclo del plan</label>
+                <select id="Ciclo" name="Ciclo">
+                    <option value="">Todos</option>
+                    @foreach (var ciclo in Model.CiclosDisponibles)
+                    {
+                        <option value="@ciclo" selected="@(Model.Filtro.Ciclo == ciclo)">Ciclo @ciclo</option>
+                    }
+                </select>
+            </div>
+
+            <div class="campo" style="flex:0 0 auto">
+                <label class="casilla">
+                    <input type="checkbox" name="SoloConCupo" value="true" checked="@Model.Filtro.SoloConCupo" />
+                    <span>Solo con cupo</span>
+                </label>
+                <label class="casilla">
+                    <input type="checkbox" name="SoloHabilitados" value="true" checked="@Model.Filtro.SoloHabilitados" />
+                    <span>Solo los que puedo llevar</span>
+                </label>
+            </div>
+
+            <div class="acciones">
+                <button type="submit" class="boton boton--pequeno">Filtrar</button>
+                <a href="#" id="limpiar-filtros" class="boton boton--sutil boton--pequeno">Limpiar</a>
+            </div>
+        </form>
+
+        <div id="resultado-catalogo">
+            <partial name="_TablaCatalogo" model="Model" />
+        </div>
+    </div>
+
+    <aside class="tarjeta lateral" style="padding:22px">
+        <div class="tarjeta__titulo">
+            <h3 class="sin-margen">Mi matrícula</h3>
+            <span class="indicador indicador--neutro">
+                @(Model.MatriculaConfirmada ? "Confirmada" : "En proceso")
+            </span>
+        </div>
+
+        <dl class="ficha">
+            <dt>Créditos</dt>
+            <dd class="numero"><span id="panel-creditos">@Model.CreditosEnMatricula</span>
+                de <span id="panel-tope">@(Model.Periodo?.MaximoCreditos ?? 18)</span></dd>
+            <dt>Cursos</dt>
+            <dd class="numero" id="panel-cursos">@Model.CursosEnMatricula</dd>
+        </dl>
+
+        <hr class="separador" style="margin:16px 0" />
+
+        <span class="rotulo">Cursos agregados</span>
+        <ul class="lista-avisos" id="panel-detalle">
+            <li class="tenue diminuto">Se actualiza conforme agregue cursos.</li>
+        </ul>
+
+        <a class="boton boton--principal margen-arriba" style="width:100%"
+           asp-controller="Matricula" asp-action="MisCursos">Ir a confirmar</a>
+    </aside>
+</div>

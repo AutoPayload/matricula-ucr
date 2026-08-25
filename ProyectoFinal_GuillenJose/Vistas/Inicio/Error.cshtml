@@ -1,0 +1,18 @@
+@model ModeloError
+
+<div class="vacio margen-arriba">
+    <span class="rotulo">Error del servidor</span>
+    <h3>Ocurrió un problema al procesar la solicitud</h3>
+    <p>
+        El error quedó anotado en la bitácora del servidor. Intente de nuevo en unos minutos y,
+        si el problema persiste, comuníquelo a la oficina de registro con el identificador que
+        aparece abajo.
+    </p>
+    @if (Model.MostrarIdentificador)
+    {
+        <p class="mono diminuto">@Model.IdentificadorSolicitud</p>
+    }
+    <div class="acciones margen-arriba" style="justify-content:center">
+        <a class="boton boton--principal" asp-controller="Inicio" asp-action="Index">Ir al inicio</a>
+    </div>
+</div>

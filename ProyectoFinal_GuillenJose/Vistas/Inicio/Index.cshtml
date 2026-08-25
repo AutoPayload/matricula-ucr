@@ -1,0 +1,160 @@
+@model ModeloPortada
+@{
+    var esEstudiantado = User.IsInRole(RolesSistema.Estudiante);
+    var esDocencia = User.IsInRole(RolesSistema.Docente);
+    var esAdministracion = User.IsInRole(RolesSistema.Administrador);
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    var nombre = User.FindFirstValue(FabricaAfirmacionesUsuario.AfirmacionNombreCompleto);
+}
+
+@if (!autenticado)
+{
+    <section class="portada">
+        <div>
+            <span class="rotulo">Sistema de matrícula universitaria</span>
+            <h1>La matrícula del cuatrimestre, resuelta en una sola pantalla.</h1>
+            <p>
+                MatrículaUCR reúne el plan de estudios, la oferta de grupos, los prerrequisitos y el
+                cupo disponible en un mismo lugar. El estudiantado arma su matrícula y recibe el
+                comprobante al instante; la oficina de registro ve en tiempo real cómo se llena cada grupo.
+            </p>
+            <div class="acciones margen-arriba">
+                <a class="boton boton--principal" asp-controller="Cuenta" asp-action="Registro">Crear una cuenta</a>
+                <a class="boton" asp-controller="Cuenta" asp-action="Ingreso">Ya tengo cuenta</a>
+            </div>
+        </div>
+
+        <div class="portada__datos">
+            @if (Model.PeriodoVigente is not null)
+            {
+                <span class="rotulo">Periodo con matrícula abierta</span>
+                <h3>@Model.PeriodoVigente.Nombre</h3>
+                <p class="diminuto tenue">
+                    Lecciones del @Model.PeriodoVigente.FechaInicio.ToString("dd/MM/yyyy")
+                    al @Model.PeriodoVigente.FechaFin.ToString("dd/MM/yyyy").
+                    La matrícula cierra el @Model.PeriodoVigente.FinMatricula.ToString("dd 'de' MMMM").
+                </p>
+                <hr class="separador" />
+            }
+
+            <dl class="ficha">
+                <dt>Carreras</dt>
+                <dd class="numero">@Model.TotalCarreras</dd>
+                <dt>Cursos</dt>
+                <dd class="numero">@Model.TotalCursos</dd>
+                <dt>Docentes</dt>
+                <dd class="numero">@Model.TotalDocentes</dd>
+                <dt>Grupos abiertos</dt>
+                <dd class="numero">@Model.TotalGrupos</dd>
+            </dl>
+        </div>
+    </section>
+
+    <section class="rejilla rejilla--3">
+        <div class="tarjeta">
+            <h3>Reglas que se aplican solas</h3>
+            <p class="tenue sin-margen">
+                Cupo, prerrequisitos, tope de créditos, cursos repetidos y ventana del periodo se
+                verifican antes de aceptar cada movimiento, y el sistema explica en palabras por
+                qué rechaza uno.
+            </p>
+        </div>
+        <div class="tarjeta">
+            <h3>Comprobante en el acto</h3>
+            <p class="tenue sin-margen">
+                Al confirmar se emite un número de comprobante y se genera el documento en PDF,
+                que queda archivado y disponible para descargar cuando se necesite.
+            </p>
+        </div>
+        <div class="tarjeta">
+            <h3>Cada rol ve lo suyo</h3>
+            <p class="tenue sin-margen">
+                Estudiantado, docencia y registro entran al mismo sistema y encuentran menús,
+                pantallas y permisos distintos, definidos por su rol.
+            </p>
+        </div>
+    </section>
+}
+else
+{
+    <div class="encabezado-pagina">
+        <div>
+            <span class="rotulo">Bienvenida</span>
+            <h1>@nombre</h1>
+            <p>Estos son los accesos que corresponden a su rol dentro del sistema.</p>
+        </div>
+    </div>
+
+    @if (esEstudiantado)
+    {
+        @await Component.InvokeAsync("AvisoPeriodo")
+
+        <div class="rejilla rejilla--principal">
+            <div class="rejilla rejilla--2">
+                <a class="tarjeta" asp-controller="Cursos" asp-action="Disponibles">
+                    <h3>Cursos disponibles</h3>
+                    <p class="tenue sin-margen">Vea la oferta de su carrera, filtre por créditos o modalidad y matricule.</p>
+                </a>
+                <a class="tarjeta" asp-controller="Matricula" asp-action="MisCursos">
+                    <h3>Mis cursos</h3>
+                    <p class="tenue sin-margen">Revise lo que lleva este periodo, confirme la matrícula y descargue el comprobante.</p>
+                </a>
+                <a class="tarjeta" asp-controller="Expediente" asp-action="Index">
+                    <h3>Expediente académico</h3>
+                    <p class="tenue sin-margen">Historial completo por periodo, con notas y promedios.</p>
+                </a>
+                <a class="tarjeta" asp-controller="Cuenta" asp-action="Perfil">
+                    <h3>Mi perfil</h3>
+                    <p class="tenue sin-margen">Actualice sus datos, cargue su fotografía y cambie la contraseña.</p>
+                </a>
+            </div>
+
+            @await Component.InvokeAsync("ResumenAcademico",
+                new { estudianteId = User.FindFirstValue(ClaimTypes.NameIdentifier) })
+        </div>
+    }
+
+    @if (esDocencia)
+    {
+        <div class="rejilla rejilla--2">
+            <a class="tarjeta" asp-controller="Docencia" asp-action="Index">
+                <h3>Mis grupos</h3>
+                <p class="tenue sin-margen">Los cursos que imparte este periodo, con el avance de la calificación.</p>
+            </a>
+            <a class="tarjeta" asp-controller="Cuenta" asp-action="Perfil">
+                <h3>Mi perfil</h3>
+                <p class="tenue sin-margen">Datos de contacto y contraseña de acceso al portal.</p>
+            </a>
+        </div>
+    }
+
+    @if (esAdministracion)
+    {
+        <div class="rejilla rejilla--3">
+            <a class="tarjeta" asp-controller="Panel" asp-action="Index">
+                <h3>Panel de registro</h3>
+                <p class="tenue sin-margen">Indicadores del periodo, ocupación de grupos y matrícula por carrera.</p>
+            </a>
+            <a class="tarjeta" asp-controller="Periodos" asp-action="Index">
+                <h3>Periodos</h3>
+                <p class="tenue sin-margen">Abra y cierre la ventana de matrícula del cuatrimestre.</p>
+            </a>
+            <a class="tarjeta" asp-controller="Grupos" asp-action="Index">
+                <h3>Grupos y docencia</h3>
+                <p class="tenue sin-margen">Oferta del periodo y asignación de la persona docente a cada grupo.</p>
+            </a>
+            <a class="tarjeta" asp-controller="Carreras" asp-action="Index">
+                <h3>Carreras</h3>
+                <p class="tenue sin-margen">Planes de estudio y asociación de cursos a cada carrera.</p>
+            </a>
+            <a class="tarjeta" asp-controller="CursosAdmin" asp-action="Index">
+                <h3>Cursos</h3>
+                <p class="tenue sin-margen">Catálogo institucional y cadena de prerrequisitos.</p>
+            </a>
+            <a class="tarjeta" asp-controller="Panel" asp-action="Bitacora">
+                <h3>Bitácora</h3>
+                <p class="tenue sin-margen">Auditoría de todos los movimientos del sistema.</p>
+            </a>
+        </div>
+    }
+}

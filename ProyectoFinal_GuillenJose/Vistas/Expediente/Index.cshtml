@@ -1,0 +1,122 @@
+@model ModeloExpediente
+
+<div class="encabezado-pagina">
+    <div>
+        <span class="rotulo">@Model.NombreCarrera</span>
+        <h1>Expediente académico</h1>
+        <p>@Model.NombreEstudiante · Identificación @Model.Identificacion</p>
+    </div>
+    <div class="acciones">
+        <a class="boton" asp-controller="Matricula" asp-action="MisCursos">Matrícula del periodo</a>
+    </div>
+</div>
+
+<div class="rejilla rejilla--principal">
+    <div class="columna">
+        @if (Model.Periodos.Count == 0)
+        {
+            <div class="vacio">
+                <h3>Su expediente está vacío</h3>
+                <p>Todavía no tiene matrículas registradas. Cuando confirme la primera, el historial aparecerá aquí.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var bloque in Model.Periodos)
+            {
+                <div class="tarjeta">
+                    <div class="tarjeta__titulo">
+                        <div>
+                            <h3 class="sin-margen">@bloque.NombrePeriodo</h3>
+                            <span class="celda-secundaria">
+                                @bloque.Lineas.Count curso(s) · @bloque.CreditosMatriculados créditos matriculados
+                                @if (bloque.NumeroComprobante is not null)
+                                {
+                                    <text> · Comprobante @bloque.NumeroComprobante</text>
+                                }
+                            </span>
+                        </div>
+                        <div class="fila">
+                            @if (bloque.Promedio > 0)
+                            {
+                                <span class="indicador indicador--acento numero">
+                                    Promedio @bloque.Promedio.ToString("N1")
+                                </span>
+                            }
+                            <indicador-estado matricula="@bloque.Estado" />
+                        </div>
+                    </div>
+
+                    <div class="tabla-envoltura">
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Curso</th>
+                                    <th class="centro">Créd.</th>
+                                    <th>Docente</th>
+                                    <th class="angosta">Condición</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var linea in bloque.Lineas)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="celda-principal">
+                                                @linea.Grupo?.Curso?.Codigo — @linea.Grupo?.Curso?.Nombre
+                                            </span>
+                                            <span class="celda-secundaria">
+                                                Grupo @linea.Grupo?.NumeroGrupo.ToString("00")
+                                                @if (linea.FechaRegistroNota is not null)
+                                                {
+                                                    <text> · Nota registrada el @linea.FechaRegistroNota.Value.ToString("dd/MM/yyyy")</text>
+                                                }
+                                            </span>
+                                        </td>
+                                        <td class="centro numero">@linea.Grupo?.Curso?.Creditos</td>
+                                        <td>@(linea.Grupo?.Docente?.NombreCompleto ?? "Sin asignar")</td>
+                                        <td class="angosta">
+                                            @if (linea.NotaFinal is not null)
+                                            {
+                                                <indicador-estado nota="@linea.NotaFinal" />
+                                            }
+                                            else
+                                            {
+                                                <span class="indicador indicador--neutro">Sin nota</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (bloque.ComprobanteDocumentoId is not null)
+                    {
+                        <div class="acciones margen-arriba">
+                            <a class="boton boton--sutil boton--pequeno"
+                               asp-controller="Documentos" asp-action="Descargar"
+                               asp-route-id="@bloque.ComprobanteDocumentoId">
+                                <svg class="icono" aria-hidden="true"><use href="#icono-descargar"></use></svg>
+                                Comprobante de matrícula
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+
+    <div class="columna">
+        @await Component.InvokeAsync("ResumenAcademico", new { estudianteId = Model.EstudianteId })
+
+        <div class="tarjeta">
+            <div class="tarjeta__titulo"><h3 class="sin-margen">Cómo se calcula</h3></div>
+            <p class="diminuto tenue sin-margen">
+                El promedio se pondera por créditos: un curso de cuatro créditos pesa el doble que
+                uno de dos. Se considera aprobado a partir de @DetalleMatricula.NotaAprobacion.
+                Las matrículas anuladas no entran en el cálculo.
+            </p>
+        </div>
+    </div>
+</div>
