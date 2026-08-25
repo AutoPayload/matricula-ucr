@@ -1,0 +1,38 @@
+@model ProyectoFinal_GuillenJose.Componentes.ResumenAcademicoViewComponent.FichaAcademica
+
+<div class="tarjeta">
+    <div class="tarjeta__titulo">
+        <h3 class="sin-margen">Resumen académico</h3>
+        <span class="indicador indicador--neutro numero">@Model.PorcentajeAvance % del plan</span>
+    </div>
+
+    <dl class="ficha">
+        <dt>Carrera</dt>
+        <dd>@Model.NombreCarrera</dd>
+
+        <dt>Promedio</dt>
+        <dd class="numero">
+            @if (Model.PromedioPonderado > 0)
+            {
+                <strong>@Model.PromedioPonderado.ToString("N1")</strong>
+                <span class="tenue diminuto"> ponderado por créditos</span>
+            }
+            else
+            {
+                <span class="tenue">Sin notas registradas</span>
+            }
+        </dd>
+
+        <dt>Cursos aprobados</dt>
+        <dd class="numero">@Model.CursosAprobados de @Model.CursosLlevados llevados</dd>
+
+        <dt>Créditos aprobados</dt>
+        <dd class="numero">@Model.CreditosAprobados de @Model.CreditosPlan del plan</dd>
+
+        @if (Model.CursosPendientesDeNota > 0)
+        {
+            <dt>Pendientes</dt>
+            <dd>@Model.CursosPendientesDeNota curso(s) sin nota registrada</dd>
+        }
+    </dl>
+</div>
