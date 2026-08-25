@@ -14,8 +14,6 @@ cualquier movimiento.
 
 Esta entrega continúa el **Avance 2** del 14 de julio de 2026 y no empieza de cero:
 
-- Es la primera revisión del repositorio: `git log --oneline --reverse` la muestra como
-  «Avance 2 del proyecto final».
 - Sus dos migraciones siguen siendo las dos primeras del proyecto, con el identificador y el
   nombre originales, y la tercera lleva el esquema al modelo académico de hoy.
 - Sus direcciones siguen funcionando gracias a `Controladores/CompatibilidadController.cs`.
